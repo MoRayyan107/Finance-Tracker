@@ -36,7 +36,7 @@ A robust Spring Boot REST API for personal finance management. Track income and 
 - **Mockito**
 - **JaCoCo** (Code Coverage)
 
-## 📦 Project Structure```
+## 📦 Project Structure
 ```
 finance-tracker/
 ├── pom.xml
@@ -57,34 +57,68 @@ finance-tracker/
 │       └── java/com/rayyan/finance_tracker/service/TransactionServicesTest.java
 └── target/site/jacoco/index.html
 ```
-## Getting Started
+
+## 🚀 Getting Started
+
 ### Prerequisites
-- Java 23+
-- MySQL 5.5+
-- Maven 3.6+
 
-## 🚀 Future Additions
+- **Java 17** or higher
+- **MySQL 5.7** or higher
+- **Maven 3.6** or higher
 
-| Category | Feature | Status | Priority |
-|----------|---------|--------|----------|
-| **Authentication** | JWT-based User Authentication | Planned | High |
-| **Authentication** | Role-based Access Control | Planned | High |
-| **Data Security** | User-specific Data Isolation | Planned | High |
-| **API Enhancements** | Pagination & Filtering | Planned | Medium |
-| **Financial Features** | Budget Management System | Planned | Medium |
-| **Financial Features** | Financial Reports & Analytics | Planned | Medium |
-| **Integration** | Bank API Integration (Plaid) | Planned | Low |
-| **Notifications** | Email/SMS Alerts | Planned | Low |
-| **UI/UX** | Web Dashboard Frontend | Planned | Medium |
-| **Deployment** | Docker Containerization | Planned | Medium |
-| **Deployment** | Cloud Deployment (AWS/Azure) | Planned | Low |
-| **Monitoring** | Application Performance Monitoring | Planned | Low |
+### Installation & Setup
 
-## 🏆 Current Achievements
-- ✅ 75%+ Test Coverage - Comprehensive service layer testing
-- ✅ Full CRUD Operations - Complete transaction management
-- ✅ Validation System - Robust input validation and error handling
-- ✅ Professional Architecture - Clean layered structure
-- ✅ Production-ready Logging - SLF4J implementation throughout
+1.  **Clone the repository and navigate into it:**
+    ```
+    git clone https://github.com/MoRayyan107/Finance-Tracker.git
+    cd Finance-Tracker
+    ```
+
+2.  **Create the MySQL database:**
+    ```sql
+    CREATE DATABASE finance_tracker_db;
+    ```
+
+3.  **Configure your database connection** in `src/main/resources/application.properties`:
+    ```properties
+    spring.datasource.url=jdbc:mysql://localhost:3306/finance_tracker_db
+    spring.datasource.username=your_mysql_username
+    spring.datasource.password=your_mysql_password
+    # ... other properties
+    ```
+
+4.  **Run the application:**
+    ```bash
+    mvn spring-boot:run
+    ```
+    The API will be available at `http://localhost:8080`.
+
+### Running Tests & Viewing Coverage
+
+1.  **Run the test suite and generate coverage report:**
+    ```bash
+    .\mvnw clean test
+    ```
+
+2.  **Open the coverage report:**
+    ```bash
+    # Open the HTML report in your browser
+    open target/site/jacoco/index.html # On macOS
+    # or
+    xdg-open target/site/jacoco/index.html # On Linux
+    # On Windows, navigate to the folder and open index.html
+    ```
+
+## 🔮 Future Enhancements
+
+- [ ] **User Authentication & Authorization** with Spring Security & JWT
+- [ ] **Advanced Financial Features** (Budgeting, Reports, Analytics)
+- [ ] **API Documentation** with OpenAPI (Swagger)
+- [ ] **Docker Containerization** for easy deployment
+- [ ] **Frontend Application** (React/Angular) to consume the API
+
+## 📝 License
+
+This project is licensed for educational and personal use.
 
 
