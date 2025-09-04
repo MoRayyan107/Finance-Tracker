@@ -9,8 +9,14 @@ import org.springframework.stereotype.Service;
 import java.math.BigDecimal;
 import java.util.List;
 
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
 @Service
 public class TransactionService {
+
+    // adding a logger instance
+    private static final Logger logger = LoggerFactory.getLogger(TransactionService.class);
 
     private final TransactionRepository transactionRepository;
 
@@ -22,10 +28,12 @@ public class TransactionService {
     public void createTransaction(Transaction transaction){
         validateTransaction(transaction); // validates if any missing columns exist if so throws an exception
         transactionRepository.save(transaction);
+        logger.info("Transaction created......");
     }
 
     // returns all transactions
     public List<Transaction> findAllTransactions(){
+        logger.info("getting all transactions");
         return transactionRepository.findAll();
     }
 
@@ -48,6 +56,7 @@ public class TransactionService {
         updatedTransaction.setTransactionType(transaction.getTransactionType());
 
         transactionRepository.save(updatedTransaction);
+        logger.info("Transaction updated......");
         return "Transaction updated with ID: "+id;
 
     }
@@ -57,12 +66,15 @@ public class TransactionService {
     public String deleteTransaction(Long id){
         Transaction transaction = getTransaction(id);
         transactionRepository.delete(transaction);
+        logger.info("Transaction deleted......");
 
         return "Transaction deleted with ID: " + id;
     }
 
     // validates if the transaction is legit (if the entries match to the entity description)
+    // if invalid throws an exception
     private void validateTransaction(Transaction transaction){
+        logger.info("Validating transaction......");
         // transaction cant be less than 0
         if (transaction.getAmount().compareTo(BigDecimal.ZERO) <= 0)
             throw new ValidationException("Amount must be greater than zero");
