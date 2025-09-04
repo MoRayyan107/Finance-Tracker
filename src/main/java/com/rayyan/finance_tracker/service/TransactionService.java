@@ -80,7 +80,7 @@ public class TransactionService {
             throw new ValidationException("Amount must be greater than zero");
 
         // description cannot be null or have white empty spaces with no characters
-        if (transaction.getDescription() == null || transaction.getDescription().isEmpty())
+        if (transaction.getDescription() == null || transaction.getDescription().trim().isEmpty())
             throw new ValidationException("Description cannot be empty");
 
         // if our transaction type (enum) is null
