@@ -24,7 +24,7 @@ public class TransactionController {
     }
 
     // gets all the transaction
-    @GetMapping("/fetch")
+    @GetMapping("/fetchAll")
     public List<Transaction> getAllTransactions() {
         return transactionService.findAllTransactions();
     }

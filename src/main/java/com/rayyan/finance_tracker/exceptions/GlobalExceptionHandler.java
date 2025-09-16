@@ -36,6 +36,15 @@ public class GlobalExceptionHandler {
 
     return new ResponseEntity<>(response,HttpStatus.BAD_REQUEST);
   }
+  /*
+  Returns into a json format
+  {
+    "message": "Transaction Type cannot be empty",
+    "error": "Validation Failure",
+    "StatusCode": 400,
+    "timestamp": "2025-09-17T01:17:42.848354200"
+}
+   */
 
   @ExceptionHandler(Exception.class)
   public ResponseEntity<String> handleException(Exception e) {
