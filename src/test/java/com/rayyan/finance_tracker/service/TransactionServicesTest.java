@@ -191,8 +191,76 @@ public class TransactionServicesTest {
     }
 
     /* ******************** Update Transaction based on ID ******************** */
+    @Test
+    void updateTransaction_ExistingId_Valid_Transaction(){
+        // Given
+        when(transactionRepository.findById(1L)).thenReturn(Optional.of(ValidTransaction));
+
+        Transaction updated_Valid_Transaction = new Transaction();
+        updated_Valid_Transaction.setDescription("Bought XBox Series X");
+        updated_Valid_Transaction.setAmount(new BigDecimal("699.99"));
+        updated_Valid_Transaction.setTransactionType(Transaction.TransactionType.EXPENSE);
+        updated_Valid_Transaction.setCategory("Shopping");
+        updated_Valid_Transaction.setDate(TEST_DATE);
+
+        // When
+        String res = transactionService.updateTransaction(1L, updated_Valid_Transaction);
+
+        // assert Ans Verify
+        assertEquals("Transaction updated with ID: 1", res);
+        verify(transactionRepository, times(1)).findById(1L);
+    }
+
+    @Test
+    void update_Transaction_ExistingID_Invalid_Transaction(){
+        // Given -> unnecessary sice validation will fail
+        Transaction updated_Invalid_Transaction = new Transaction();
+        updated_Invalid_Transaction.setDescription("Bought XBox Series X");
+        updated_Invalid_Transaction.setAmount(new BigDecimal("699.99"));
+        updated_Invalid_Transaction.setTransactionType(null); // will throw ValidationException
+
+        // assert and verify
+        assertThrows(ValidationException.class,
+                () -> transactionService.updateTransaction(1L, updated_Invalid_Transaction));
+        verify(transactionRepository, never()).save(any(Transaction.class));
+        verify(transactionRepository, never()).findById(1L);
+    }
+
+    @Test
+    void Update_Transaction_Non_ExistingID_Valid_Transaction(){
+        // Given
+        when(transactionRepository.findById(5L)).thenReturn(Optional.empty());
+
+        // assert and verify
+        assertThrows(TransactionNotFoundException.class,
+                () -> transactionService.updateTransaction(5L, ValidTransaction));
+        verify(transactionRepository, times(1)).findById(5L);
+    }
 
     /* ******************** Deleting a Transaction based on ID ******************** */
 
+    @Test
+    void Delete_Transaction_ExistingId(){
+        // Given
+        when(transactionRepository.findById(1L)).thenReturn(Optional.of(ValidTransaction));
+
+        // When
+        String res = transactionService.deleteTransaction(1L);
+
+        // assert and verify
+        assertEquals("Transaction deleted with ID: 1", res);
+        verify(transactionRepository, times(1)).findById(1L);
+    }
+
+    @Test
+    void Delete_Transaction_Non_ExistingId(){
+        // Given
+        when(transactionRepository.findById(4L)).thenReturn(Optional.empty());
+
+        // assert and verify
+        assertThrows(TransactionNotFoundException.class,
+                () -> transactionService.deleteTransaction(4L));
+        verify(transactionRepository, times(1)).findById(4L);
+    }
 
 }
