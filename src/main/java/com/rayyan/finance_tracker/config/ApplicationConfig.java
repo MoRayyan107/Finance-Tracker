@@ -1,44 +1,37 @@
 package com.rayyan.finance_tracker.config;
 
-import com.rayyan.finance_tracker.repository.UserRepository;
+import com.rayyan.finance_tracker.service.UserService;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
-import org.springframework.security.authentication.AuthenticationProvider;
-import org.springframework.security.authentication.dao.DaoAuthenticationProvider;
-import org.springframework.security.core.userdetails.UserDetailsService;
-import org.springframework.security.core.userdetails.UsernameNotFoundException;
+import org.springframework.security.config.Customizer;
+import org.springframework.security.config.annotation.web.builders.HttpSecurity;
+import org.springframework.security.config.annotation.web.configuration.EnableWebSecurity;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.security.crypto.password.PasswordEncoder;
+import org.springframework.security.web.SecurityFilterChain;
 
 @Configuration
+@EnableWebSecurity
 public class ApplicationConfig {
 
-    private final UserRepository userRepository;
-
-    public ApplicationConfig(UserRepository userRepository) {
-        this.userRepository = userRepository;
+    @Bean
+    public UserService userDetailService(){
+        return new UserService();
     }
 
-    // get the user details
     @Bean
-    public UserDetailsService getUserDetailsService() {
-        // returns the details of user if found, else throw an exception
-        return username -> userRepository.findByUsername(username)
-                .orElseThrow(() -> new UsernameNotFoundException("Username not found"));
-    }
-
-    // encode the password
-    @Bean
-    public PasswordEncoder getPasswordEncoder() {
+    public PasswordEncoder passwordEncoder(){
         return new BCryptPasswordEncoder();
     }
 
-    //
-
     @Bean
-    public AuthenticationProvider getAuthenticationProvider() {
-        DaoAuthenticationProvider authProvider = new DaoAuthenticationProvider(getUserDetailsService());
-        authProvider.setPasswordEncoder(getPasswordEncoder());
-        return authProvider;
+    public SecurityFilterChain springSecurityFilterChain(HttpSecurity http) throws Exception {
+        http
+                .authorizeHttpRequests(authorizeRequests ->
+                        authorizeRequests.anyRequest().authenticated()
+                ).httpBasic(Customizer.withDefaults())
+                .formLogin(Customizer.withDefaults());
+        return http.build();
     }
+
 }
