@@ -1,0 +1,70 @@
+package com.rayyan.finance_tracker.entity;
+
+import jakarta.persistence.*;
+import lombok.AllArgsConstructor;
+import lombok.Builder;
+import lombok.Data;
+import lombok.NoArgsConstructor;
+import org.springframework.security.core.GrantedAuthority;
+import org.springframework.security.core.userdetails.UserDetails;
+
+import java.util.Collection;
+import java.util.List;
+
+@Entity
+@Data
+@NoArgsConstructor
+@AllArgsConstructor
+@Builder
+@Table(name = "users")
+public class User implements UserDetails {
+
+    @Id
+    @GeneratedValue(strategy = GenerationType.IDENTITY)
+    private Long id;
+
+    @Column(nullable = false, unique = true)
+    private String username;
+
+    @Column(nullable = false)
+    private String password;
+
+    // A user can have many transactions.
+    // When a user is deleted, all their transactions should also be deleted (CascadeType.ALL).
+    // FetchType.LAZY means transactions are not loaded from the database until we explicitly ask for them.
+    @OneToMany(mappedBy = "user", cascade = CascadeType.ALL, fetch = FetchType.LAZY)
+    private List<Transaction> transactions;
+
+    // These methods are required by Spring Security to manage the user's account status.
+
+    @Override
+    public Collection<? extends GrantedAuthority> getAuthorities() {
+        // We will keep this simple for now. No special roles.
+        return null;
+    }
+
+    @Override
+    public boolean isAccountNonExpired() {
+        // An account that never expires.
+        return true;
+    }
+
+    @Override
+    public boolean isAccountNonLocked() {
+        // An account that is never locked.
+        return true;
+    }
+
+    @Override
+    public boolean isCredentialsNonExpired() {
+        // Credentials (password) that never expire.
+        return true;
+    }
+
+    @Override
+    public boolean isEnabled() {
+        // A user account that is always enabled.
+        return true;
+    }
+}
+
