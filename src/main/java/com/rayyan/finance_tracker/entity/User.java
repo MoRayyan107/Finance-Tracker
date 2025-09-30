@@ -6,6 +6,7 @@ import lombok.Builder;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 import org.springframework.security.core.GrantedAuthority;
+import org.springframework.security.core.authority.SimpleGrantedAuthority;
 import org.springframework.security.core.userdetails.UserDetails;
 
 import java.util.Collection;
@@ -29,6 +30,10 @@ public class User implements UserDetails {
     @Column(nullable = false)
     private String password;
 
+    @Enumerated(EnumType.STRING)
+    @Column(nullable = false)
+    private Role role;
+
     // A user can have many transactions.
     // When a user is deleted, all their transactions should also be deleted (CascadeType.ALL).
     // FetchType.LAZY means transactions are not loaded from the database until we explicitly ask for them.
@@ -40,7 +45,7 @@ public class User implements UserDetails {
     @Override
     public Collection<? extends GrantedAuthority> getAuthorities() {
         // We will keep this simple for now. No special roles.
-        return null;
+        return List.of(new SimpleGrantedAuthority(role.name()));
     }
 
     @Override
@@ -65,6 +70,14 @@ public class User implements UserDetails {
     public boolean isEnabled() {
         // A user account that is always enabled.
         return true;
+    }
+
+    /*
+     * Roles that can be set to a user
+     */
+    enum Role{
+        USER,
+        ADMIN
     }
 }
 
