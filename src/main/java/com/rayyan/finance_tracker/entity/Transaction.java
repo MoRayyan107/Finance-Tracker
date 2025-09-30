@@ -41,7 +41,7 @@ public class Transaction {
     // FetchType.LAZY means the user is not loaded from the DB until we need it.
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "user_id", nullable = false) // user_id is the foreign key here that maps to USER table
-    @JsonIgnore // prevents infinite loops within JSON file
+    @JsonIgnore
     private User user;
 
     // What type of transaction

@@ -1,5 +1,6 @@
 package com.rayyan.finance_tracker.service;
 
+import com.rayyan.finance_tracker.entity.User;
 import com.rayyan.finance_tracker.repository.UserRepository;
 import lombok.RequiredArgsConstructor;
 import org.springframework.security.core.userdetails.UserDetails;
@@ -9,7 +10,7 @@ import org.springframework.stereotype.Service;
 
 @Service
 @RequiredArgsConstructor
-public class userDetailService implements UserDetailsService {
+public class UserDetailService implements UserDetailsService {
 
     private final UserRepository userRepository;
 
@@ -23,6 +24,11 @@ public class userDetailService implements UserDetailsService {
      */
     @Override
     public UserDetails loadUserByUsername(String username) throws UsernameNotFoundException {
+        return userRepository.findByUsername(username)
+                .orElseThrow(() -> new UsernameNotFoundException("Username Not Found: "+username));
+    }
+
+    public User getUserByUsername(String username) {
         return userRepository.findByUsername(username)
                 .orElseThrow(() -> new UsernameNotFoundException("Username Not Found: "+username));
     }

@@ -1,7 +1,11 @@
 package com.rayyan.finance_tracker.controllers;
 
 import com.rayyan.finance_tracker.entity.Transaction;
+import com.rayyan.finance_tracker.entity.User;
 import com.rayyan.finance_tracker.service.TransactionService;
+import com.rayyan.finance_tracker.service.UserDetailService;
+import org.springframework.security.core.Authentication;
+import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
@@ -11,38 +15,53 @@ import java.util.List;
 public class TransactionController {
 
     private final TransactionService transactionService;
+    private final UserDetailService userDetailService;
 
-    public TransactionController(TransactionService transactionService) {
+    public TransactionController(TransactionService transactionService,
+                                 UserDetailService userDetailService) {
         this.transactionService = transactionService;
+        this.userDetailService = userDetailService;
     }
 
-    // creates a new Transaction
+    // Helper method to get current authenticated user
+    private User getCurrentUser() {
+        Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
+        String username = authentication.getName();
+        return userDetailService.getUserByUsername(username);
+    }
+
     @PostMapping("/create")
     public String createTransaction(@RequestBody Transaction transaction) {
+        // Get current user from JWT token
+        User currentUser = getCurrentUser();
+        transaction.setUser(currentUser);
+
         transactionService.createTransaction(transaction);
         return "Transaction Successfully created";
     }
 
-    // gets all the transaction
     @GetMapping("/fetchAll")
     public List<Transaction> getAllTransactions() {
-        return transactionService.findAllTransactions();
+        // Get only transactions for current user
+        User currentUser = getCurrentUser();
+        return transactionService.findTransactionsByUser(currentUser);
     }
 
     @GetMapping("/{id}")
     public Transaction getTransactionById(@PathVariable Long id) {
-        return transactionService.getTransaction(id);
+        User currentUser = getCurrentUser();
+        return transactionService.getTransactionByIdAndUser(id, currentUser);
     }
 
     @PutMapping("/update/{id}")
     public String updateTransactionById(@PathVariable Long id, @RequestBody Transaction transaction) {
-        return transactionService.updateTransaction(id, transaction);
+        User currentUser = getCurrentUser();
+        return transactionService.updateTransaction(id, transaction, currentUser);
     }
 
     @DeleteMapping("/delete/{id}")
     public String deleteTransactionById(@PathVariable Long id) {
-        return transactionService.deleteTransaction(id);
+        User currentUser = getCurrentUser();
+        return transactionService.deleteTransaction(id, currentUser);
     }
-
-
 }

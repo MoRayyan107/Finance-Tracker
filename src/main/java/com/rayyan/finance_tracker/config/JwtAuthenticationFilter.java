@@ -1,7 +1,7 @@
 package com.rayyan.finance_tracker.config;
 
+import com.rayyan.finance_tracker.service.UserDetailService;
 import com.rayyan.finance_tracker.service.jwt.JwtService;
-import com.rayyan.finance_tracker.service.userDetailService;
 import jakarta.servlet.FilterChain;
 import jakarta.servlet.ServletException;
 import jakarta.servlet.http.HttpServletRequest;
@@ -21,7 +21,7 @@ import java.io.IOException;
 @RequiredArgsConstructor
 public class JwtAuthenticationFilter extends OncePerRequestFilter {
 
-    private final userDetailService userDetails;
+    private final UserDetailService userDetails;
     private final JwtService jwtService;
 
     /**
