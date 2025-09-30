@@ -1,14 +1,19 @@
 package com.rayyan.finance_tracker.controllers;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
+import com.rayyan.finance_tracker.config.ApplicationConfig;
+import com.rayyan.finance_tracker.config.JwtAuthenticationFilter;
 import com.rayyan.finance_tracker.entity.Transaction;
 import com.rayyan.finance_tracker.exceptions.TransactionNotFoundException;
 import com.rayyan.finance_tracker.exceptions.ValidationException;
 import com.rayyan.finance_tracker.service.TransactionService;
+import com.rayyan.finance_tracker.service.jwt.JwtService;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.web.servlet.WebMvcTest;
+import org.springframework.security.core.userdetails.UserDetailsService;
+import org.springframework.security.test.context.support.WithMockUser;
 import org.springframework.http.MediaType;
 import org.springframework.test.context.bean.override.mockito.MockitoBean;
 import org.springframework.test.web.servlet.MockMvc;
@@ -24,7 +29,17 @@ import static org.springframework.test.web.servlet.request.MockMvcRequestBuilder
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.*;
 
 @WebMvcTest(TransactionController.class) // Tests only the controller
+@WithMockUser                            // -< Runs as authenticated User
 public class TransactionControllerTest {
+
+    @MockitoBean
+    private JwtService jwtService;
+
+    @MockitoBean
+    private JwtAuthenticationFilter jwtAuthenticationFilter;
+
+    @MockitoBean
+    private UserDetailsService userDetailsService;
 
     @Autowired
     private MockMvc mockMvc; // Stimulates HTTP requests
@@ -44,6 +59,7 @@ public class TransactionControllerTest {
     void setup() {
         /* ********** Valid Transaction *********** */
         ValidTransaction = new Transaction();
+        ValidTransaction.setId(1L);
         ValidTransaction.setDescription("Test Shopping Transaction");
         ValidTransaction.setAmount(new BigDecimal("3000.00"));
         ValidTransaction.setTransactionType(Transaction.TransactionType.EXPENSE);

@@ -1,5 +1,6 @@
 package com.rayyan.finance_tracker.entity;
 
+import com.fasterxml.jackson.annotation.JsonManagedReference;
 import jakarta.persistence.*;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
@@ -38,6 +39,7 @@ public class User implements UserDetails {
     // When a user is deleted, all their transactions should also be deleted (CascadeType.ALL).
     // FetchType.LAZY means transactions are not loaded from the database until we explicitly ask for them.
     @OneToMany(mappedBy = "user", cascade = CascadeType.ALL, fetch = FetchType.LAZY)
+    @JsonManagedReference  // prevents from infinite loop
     private List<Transaction> transactions;
 
     // These methods are required by Spring Security to manage the user's account status.
@@ -75,7 +77,7 @@ public class User implements UserDetails {
     /*
      * Roles that can be set to a user
      */
-    enum Role{
+    public enum Role{
         USER,
         ADMIN
     }

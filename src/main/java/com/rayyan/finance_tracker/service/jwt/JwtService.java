@@ -1,4 +1,4 @@
-package com.rayyan.finance_tracker.service;
+package com.rayyan.finance_tracker.service.jwt;
 
 import io.jsonwebtoken.Claims;
 import io.jsonwebtoken.Jwts;
