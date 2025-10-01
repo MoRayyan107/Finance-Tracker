@@ -4,24 +4,20 @@ import com.rayyan.finance_tracker.entity.Transaction;
 import com.rayyan.finance_tracker.entity.User;
 import com.rayyan.finance_tracker.service.TransactionService;
 import com.rayyan.finance_tracker.service.UserDetailService;
+import lombok.AllArgsConstructor;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
 
+@AllArgsConstructor
 @RestController
 @RequestMapping("/api/transaction")
 public class TransactionController {
 
     private final TransactionService transactionService;
     private final UserDetailService userDetailService;
-
-    public TransactionController(TransactionService transactionService,
-                                 UserDetailService userDetailService) {
-        this.transactionService = transactionService;
-        this.userDetailService = userDetailService;
-    }
 
     // Helper method to get current authenticated user
     private User getCurrentUser() {

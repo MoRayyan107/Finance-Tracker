@@ -48,7 +48,7 @@ public class GlobalExceptionHandler {
 
   @ExceptionHandler(Exception.class)
   public ResponseEntity<String> handleException(Exception e) {
-    return new ResponseEntity<>("AN Error Occurred: " + e.getMessage(),
+    return new ResponseEntity<>("An Error Occurred: " + e.getMessage(),
                                 HttpStatus.INTERNAL_SERVER_ERROR);
   }
 }

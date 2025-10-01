@@ -5,6 +5,7 @@ import com.rayyan.finance_tracker.entity.User;
 import com.rayyan.finance_tracker.exceptions.TransactionNotFoundException;
 import com.rayyan.finance_tracker.exceptions.ValidationException;
 import com.rayyan.finance_tracker.repository.TransactionRepository;
+import lombok.AllArgsConstructor;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.stereotype.Service;
@@ -13,14 +14,12 @@ import java.math.BigDecimal;
 import java.util.List;
 
 @Service
+@AllArgsConstructor
 public class TransactionService {
 
     private static final Logger logger = LoggerFactory.getLogger(TransactionService.class);
     private final TransactionRepository transactionRepository;
 
-    public TransactionService(TransactionRepository transactionRepository) {
-        this.transactionRepository = transactionRepository;
-    }
 
     public void createTransaction(Transaction transaction) {
         validateTransaction(transaction);
@@ -48,6 +47,7 @@ public class TransactionService {
         existingTransaction.setCategory(transaction.getCategory());
         existingTransaction.setDate(transaction.getDate());
         existingTransaction.setTransactionType(transaction.getTransactionType());
+        existingTransaction.setUser(user);
 
         transactionRepository.save(existingTransaction);
         logger.info("Transaction updated for user: {}", user.getUsername());
