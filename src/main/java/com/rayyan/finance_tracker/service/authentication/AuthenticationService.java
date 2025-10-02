@@ -25,9 +25,15 @@ public class AuthenticationService {
     private final AuthenticationManager authenticationManager;
     private final UserRepository userRepository;
 
+    private static final int MIN_USERNAME_LENGTH = 4;
+    private static final int MAX_USERNAME_LENGTH = 20;
+
+    private static final int MIN_PASSWORD_LENGTH = 8;
+    private static final int MAX_PASSWORD_LENGTH = 50;
+
     public AuthenticationResponse register(RegisterRequest request) {
         // --------- Check if the request is valid -------------
-        isValidRequest(request);
+        isValidRequest(request.getUsername(), request.getPassword());
 
         // build a user by Username and Encode Password
         var user = User.builder()
@@ -48,7 +54,7 @@ public class AuthenticationService {
 
     public AuthenticationResponse authenticate(AuthenticationRequest request) {
         // --------- Check if the request is valid -------------
-        isValidRequest(request);
+        isValidRequest(request.getUsername(), request.getPassword());
 
         // code for authenticating an existing account
         authenticationManager.authenticate(
@@ -75,46 +81,23 @@ public class AuthenticationService {
      * If the fields are empty or null and size to be less than minLength
      * Then throws an Exception
      *
-     * @param request The RegisterRequest passed in (Username and Password)
+     * @param username The username passed by Register/Login Request
+     * @param password The password passed by Register/Login Request
      */
-    private void isValidRequest(RegisterRequest request) {
+    private void isValidRequest(String username, String password) {
         List<String> exceptions  = new ArrayList<>();
-        String username = request.getUsername();
-        String password = request.getPassword();
 
         // check if the entered credentials are not null OR empty
         ValidatingUtil.checkIsEmpty(username,"Username",exceptions);
         ValidatingUtil.checkIsEmpty(password,"Password",exceptions);
         // check the length of the username and password
-        ValidatingUtil.checkMinLength(username,"Username",8, exceptions);
-        ValidatingUtil.checkMinLength(password,"Password",8, exceptions);
+        ValidatingUtil.checkMinLength(username,"Username",MIN_USERNAME_LENGTH, exceptions);
+        ValidatingUtil.checkMinLength(password,"Password",MIN_PASSWORD_LENGTH, exceptions);
+        // check the length of the username and password IF EXCEEDS
+        ValidatingUtil.checkMaxLength(username,"Username",MAX_USERNAME_LENGTH, exceptions);
+        ValidatingUtil.checkMaxLength(password,"Password",MAX_PASSWORD_LENGTH, exceptions);
 
         // throw the exceptions
-        ValidatingUtil.ThrowIfExists(exceptions);
-    }
-
-    /**
-     * This method is used for checking if the username and password are NULL or Empty
-     * and checks their minimum Length size 8.
-     *
-     * If the fields are empty or null and size to be less than minLength
-     * Then throws an Exception
-     *
-     * @param request The AuthenticationRequest passed in (Username and Password)
-     */
-    private void isValidRequest(AuthenticationRequest request) {
-        List<String> exceptions  = new ArrayList<>();
-        String username = request.getUsername();
-        String password = request.getPassword();
-
-        // check if the entered credentials are not null OR empty
-        ValidatingUtil.checkIsEmpty(username,"Username",exceptions);
-        ValidatingUtil.checkIsEmpty(password,"Password",exceptions);
-        // check the length of the username and password
-        ValidatingUtil.checkMinLength(username,"Username",8, exceptions);
-        ValidatingUtil.checkMinLength(password,"Password",8, exceptions);
-
-        // throw the exceptions
-        ValidatingUtil.ThrowIfExists(exceptions);
+        ValidatingUtil.throwIfExists(exceptions);
     }
 }

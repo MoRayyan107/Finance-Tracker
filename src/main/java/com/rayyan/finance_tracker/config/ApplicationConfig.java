@@ -31,6 +31,7 @@ public class ApplicationConfig {
                 .csrf(AbstractHttpConfigurer::disable)
                 .authorizeHttpRequests(authRequest -> authRequest
                                 .requestMatchers("/api/auth/**").permitAll()
+                                .requestMatchers("/", "/*.html", "/css/**", "/js/**").permitAll()
                         .anyRequest().authenticated()
                 )
                 .sessionManagement(session -> session
