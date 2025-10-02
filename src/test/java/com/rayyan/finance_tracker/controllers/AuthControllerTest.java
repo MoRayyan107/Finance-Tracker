@@ -21,7 +21,6 @@ import java.util.Map;
 
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.*;
-import static org.springframework.security.test.web.servlet.request.SecurityMockMvcRequestPostProcessors.csrf;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.*;
 
@@ -75,7 +74,6 @@ public class AuthControllerTest {
 
         // Verify
         mockMvc.perform(post("/api/auth/register")
-                        .with(csrf())
                         .contentType(MediaType.APPLICATION_JSON)
                         .content(objectMapper.writeValueAsString(validRegister)))
                 .andExpect(status().isOk())
@@ -263,7 +261,7 @@ public class AuthControllerTest {
     @Test
     void login_ValidCredentials_Success() throws Exception {
         // Given
-        RegisterRequest validRegister = RegisterRequest.builder()
+        AuthenticationRequest validRegister = AuthenticationRequest.builder()
                 .username(VALID_USERNAME)
                 .password(VALID_PASSWORD)
                 .build();
@@ -277,7 +275,6 @@ public class AuthControllerTest {
 
         // Verify
         mockMvc.perform(post("/api/auth/login")
-                        .with(csrf())
                         .contentType(MediaType.APPLICATION_JSON)
                         .content(objectMapper.writeValueAsString(validRegister)))
                 .andExpect(status().isOk())
@@ -294,7 +291,7 @@ public class AuthControllerTest {
     @Test
     void login_UsernameNull_Or_Empty_Fail() throws Exception {
         // Given
-        RegisterRequest invalidRegister = RegisterRequest.builder()
+        AuthenticationRequest invalidRegister = AuthenticationRequest.builder()
                 .username(NULL_OR_EMPTY_USERNAME) // empty/NULL username -> validationException
                 .password(VALID_PASSWORD)
                 .build();
@@ -323,7 +320,7 @@ public class AuthControllerTest {
     @Test
     void login_UsernameTooShort_Fail() throws Exception {
         // Given
-        RegisterRequest invalidRegister = RegisterRequest.builder()
+        AuthenticationRequest invalidRegister = AuthenticationRequest.builder()
                 .username(SHORT_USERNAME) // Username length less than 4 -> ValidationException
                 .password(VALID_PASSWORD)
                 .build();
@@ -351,7 +348,7 @@ public class AuthControllerTest {
     @Test
     void login_UsernameTooLong_Fail() throws Exception {
         // Given
-        RegisterRequest invalidRegister = RegisterRequest.builder()
+        AuthenticationRequest invalidRegister = AuthenticationRequest.builder()
                 .username(LONG_USERNAME) // username is too long -> ValidationException
                 .password(VALID_PASSWORD)
                 .build();
@@ -380,7 +377,7 @@ public class AuthControllerTest {
     @Test
     void login_PasswordNull_Fail() throws Exception {
         // Given
-        RegisterRequest invalidRegister = RegisterRequest.builder()
+        AuthenticationRequest invalidRegister = AuthenticationRequest.builder()
                 .username(VALID_USERNAME)
                 .password(NULL_OR_EMPTY_PASSWORD) // empty/NULL password -> validationException
                 .build();
@@ -408,7 +405,7 @@ public class AuthControllerTest {
     @Test
     void login_PasswordTooShort_Fail() throws Exception {
         // Given
-        RegisterRequest invalidRegister = RegisterRequest.builder()
+        AuthenticationRequest invalidRegister = AuthenticationRequest.builder()
                 .username(VALID_USERNAME)
                 .password(SHORT_PASSWORD) // password length is less than 8 -> Validation Exception
                 .build();
@@ -436,7 +433,7 @@ public class AuthControllerTest {
     @Test
     void login_PasswordTooLong_Fail() throws Exception {
         // Given
-        RegisterRequest invalidRegister = RegisterRequest.builder()
+        AuthenticationRequest invalidRegister = AuthenticationRequest.builder()
                 .username(VALID_USERNAME)
                 .password(LONG_PASSWORD) // password is too long -> ValidationException
                 .build();
