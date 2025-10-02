@@ -90,10 +90,10 @@ public class UtilsTest {
 
     @Test
     void CheckPassword_MinLength_Displays_Error(){
-        ValidatingUtil.checkMinLength(SHORT_PASSWORD,PASSWORD,MIN_USERNAME_LENGTH, errors);
+        ValidatingUtil.checkMinLength(SHORT_PASSWORD,PASSWORD,MIN_PASSWORD_LENGTH, errors);
 
         assertEquals(1, errors.size());
-        assertEquals(PASSWORD+" can't be less than " + MIN_USERNAME_LENGTH + " characters", errors.get(0));
+        assertEquals(PASSWORD+" can't be less than " + MIN_PASSWORD_LENGTH + " characters", errors.get(0));
 
         test_Passes.put(7, "Test 7 (CheckPassword_MinLength_Displays_Error): PASS");
     }
