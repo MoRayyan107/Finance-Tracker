@@ -14,6 +14,8 @@ import org.springframework.http.MediaType;
 import org.springframework.test.context.bean.override.mockito.MockitoBean;
 import org.springframework.test.web.servlet.MockMvc;
 
+import static com.rayyan.finance_tracker.TestConstants.*;
+
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
@@ -40,19 +42,6 @@ public class AuthControllerTest {
     
     private static final Map<Integer,String> result = new HashMap<>();
 
-    private static final String DUMMY_JWT_TOKEN = "DUMMY_JWT_TOKEN_GENERATED_123";
-
-    // Username Properties
-    private static final String VALID_USERNAME = "testUser123";
-    private static final String LONG_USERNAME = "Pseudopseudohypoparathyroidism"; // more than 20 characters
-    private static final String SHORT_USERNAME = "AC"; // less than 4 characters
-    private static final String NULL_OR_EMPTY_USERNAME = "";
-
-    // Password properties
-    private static final String VALID_PASSWORD = "testPassword123";
-    private static final String LONG_PASSWORD = "Pneumonoultramicroscopicsilicovolcanoconiosisassupercalifragilisticexpialidocious"; // more than 50 characters
-    private static final String SHORT_PASSWORD = "ABC"; // less than 8 characters
-    private static final String NULL_OR_EMPTY_PASSWORD = "";
 
 
     /* ******************************** Registration Tests ******************************** */
