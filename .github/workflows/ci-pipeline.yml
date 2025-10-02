@@ -4,9 +4,12 @@ name: Java CI Pipeline (Test and Build)
 # THIS IS THE FIX: Run on every push to the 'main' branch
 on:
   push:
-    branches: [ "main" ]
+    branches:
+      - "master"
+      - "broken-code"
+
   pull_request:
-    branches: [ "main" ]
+    branches: [ "master" ]
 
 jobs:
   build:
