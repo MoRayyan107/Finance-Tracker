@@ -1,12 +1,15 @@
 # This name will appear in the "Actions" tab of your GitHub repository.
 name: Java CI Pipeline (Test and Build)
 
-# Run on every push to the 'main' branch
+# THIS IS THE FIX: Run on every push to the 'main' branch
 on:
   push:
-    branches: [ "main" ]
+    branches:
+      - "master"
+      - "broken-code"
+
   pull_request:
-    branches: [ "main" ]
+    branches: [ "master" ]
 
 jobs:
   build:
@@ -28,6 +31,5 @@ jobs:
           path: ~/.m2/repository
           key: ${{ runner.os }}-maven-${{ hashFiles('**/pom.xml') }}
 
-      # 'mvn install' compiles code, runs all tests, and packages the app
       - name: Build and Test with Maven
         run: mvn -B clean install

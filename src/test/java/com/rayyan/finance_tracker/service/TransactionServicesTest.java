@@ -67,9 +67,6 @@ public class TransactionServicesTest {
     /* ******************** Creating a Transaction ******************** */
     @Test
     void ValidTransaction_Success(){
-        // ----- Given -----
-        when(transactionRepository.save(any(Transaction.class))).thenReturn(ValidTransaction);
-
         // ----- When -----
         transactionService.createTransaction(ValidTransaction);
 
