@@ -57,6 +57,7 @@ document.addEventListener("DOMContentLoaded", () => {
       console.error('Error:', error);
     
       errorMessage.textContent = 'Login failed. Please check your credentials and try again.';
+      registerForm.reset(); // clear the form fields
       if(errorBox){
         errorBox.style.display = 'block';
 

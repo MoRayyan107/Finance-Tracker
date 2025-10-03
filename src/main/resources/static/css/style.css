@@ -85,19 +85,25 @@ body{
     margin: 0;
 }
 
-.register-link{
+.register-link ,.login-link{
     text-align: center;
     margin-top: 15px;
-    font-size: 14px;
+    font-size: 17px;
 }
 
-.register-link a{
+.register-link .login-link a{
     color: #007BFF;
     text-decoration: none;
 }
 
 .register-link a:hover{
+    color: #160381;
     text-decoration: underline;
 }
+.login-link a:hover{
+    color: #160381;
+    text-decoration: underline;
+}
+
 
 /* Responsive Design */
