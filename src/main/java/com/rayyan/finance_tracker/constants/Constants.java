@@ -1,4 +1,4 @@
-package com.rayyan.constants;
+package com.rayyan.finance_tracker.constants;
 
 public class Constants {
 
@@ -8,6 +8,10 @@ public class Constants {
 
     public static final int MIN_PASSWORD_LENGTH = 8;
     public static final int MAX_PASSWORD_LENGTH = 50;
+
+    // Email Validation constants
+    public static final int MIN_EMAIL_LENGTH = 5;
+    public static final int MAX_EMAIL_LENGTH = 50;
    
 
     // prevention instantiation

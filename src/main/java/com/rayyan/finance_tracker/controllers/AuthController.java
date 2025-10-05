@@ -18,6 +18,12 @@ public class AuthController {
 
     private final AuthenticationService service;
 
+    /**
+     * User Endpoint Regesteration 
+     * 
+     * @param request register request object
+     * @return Response Entity with Authentication Response object
+     */
     @PostMapping("/register")
     public ResponseEntity<AuthenticationResponse> register(
             @RequestBody RegisterRequest request
@@ -25,6 +31,12 @@ public class AuthController {
         return ResponseEntity.ok(service.register(request));
     }
 
+    /**
+     * User Endpoint Login
+     * 
+     * @param request authentication request object
+     * @return Response Entity with Authentication Response object
+     */
     @PostMapping("/login")
     public ResponseEntity<AuthenticationResponse> login(
             @RequestBody AuthenticationRequest request

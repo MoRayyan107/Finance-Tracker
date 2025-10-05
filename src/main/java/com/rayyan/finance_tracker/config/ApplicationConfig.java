@@ -25,6 +25,14 @@ public class ApplicationConfig {
     private final JwtAuthenticationFilter jwtAuthFilter;
     private final UserDetailsService userDetailsService;
 
+
+    /**
+     * Security Filter Chain Bean
+     * 
+     * @param http httpSecurity object 
+     * @return Security Filter Chain object
+     * @throws Exception in case of any error
+     */
     @Bean
     public SecurityFilterChain securityFilterChain(HttpSecurity http) throws Exception {
         http
@@ -41,6 +49,11 @@ public class ApplicationConfig {
         return http.build();
     }
 
+    /**
+     * Authentication Provider Bean
+     * 
+     * @return Authentication Provider object
+     */
     @Bean
     public AuthenticationProvider authenticationProvider() {
         DaoAuthenticationProvider daoAuthProvider = new DaoAuthenticationProvider(userDetailsService);
@@ -48,11 +61,23 @@ public class ApplicationConfig {
         return daoAuthProvider;
     }
 
+    /**
+     * Authentication Manager Bean
+     * 
+     * @param config Authentication Configuration object
+     * @return Authentication Manager object
+     * @throws Exception in case of any error
+     */
     @Bean
     public AuthenticationManager authenticationManager(AuthenticationConfiguration config) throws Exception {
         return config.getAuthenticationManager();
     }
 
+    /**
+     * Password Encoder Bean
+     * 
+     * @return Password Encoder object
+     */
     @Bean
     public PasswordEncoder PasswordEncoder() {
         return new BCryptPasswordEncoder();

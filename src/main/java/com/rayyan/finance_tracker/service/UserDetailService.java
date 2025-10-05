@@ -25,11 +25,13 @@ public class UserDetailService implements UserDetailsService {
     @Override
     public UserDetails loadUserByUsername(String username) throws UsernameNotFoundException {
         return userRepository.findByUsername(username)
+                .or(() -> userRepository.findByEmail(username)) // allow login with email as well 
                 .orElseThrow(() -> new UsernameNotFoundException("Username Not Found: "+username));
     }
 
     public User getUserByUsername(String username) {
         return userRepository.findByUsername(username)
+                .or(()-> userRepository.findByEmail(username)) // allow login with email as well
                 .orElseThrow(() -> new UsernameNotFoundException("Username Not Found: "+username));
     }
 }
