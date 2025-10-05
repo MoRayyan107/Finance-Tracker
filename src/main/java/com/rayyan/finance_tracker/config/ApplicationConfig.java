@@ -25,11 +25,10 @@ public class ApplicationConfig {
     private final JwtAuthenticationFilter jwtAuthFilter;
     private final UserDetailsService userDetailsService;
 
-
     /**
      * Security Filter Chain Bean
      * 
-     * @param http httpSecurity object 
+     * @param http httpSecurity object
      * @return Security Filter Chain object
      * @throws Exception in case of any error
      */
@@ -40,7 +39,7 @@ public class ApplicationConfig {
                 .authorizeHttpRequests(authRequest -> authRequest
                         .requestMatchers("/api/auth/**").permitAll()
                         .requestMatchers("/", "/*.html", "/css/**", "/js/**").permitAll()
-                        .requestMatchers("/login", "/register","/dashboard").permitAll()
+                        .requestMatchers("/login", "/register", "/dashboard").permitAll()
                         .anyRequest().authenticated())
                 .sessionManagement(session -> session
                         .sessionCreationPolicy(SessionCreationPolicy.STATELESS))

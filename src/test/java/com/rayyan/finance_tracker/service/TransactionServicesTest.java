@@ -17,34 +17,30 @@ import org.mockito.junit.jupiter.MockitoExtension;
 
 import java.math.BigDecimal;
 import java.time.LocalDateTime;
-import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Optional;
+import java.util.TreeMap;
 
 import static org.junit.jupiter.api.Assertions.*;
 import static org.mockito.ArgumentMatchers.*;
 import static org.mockito.Mockito.*;
 
-@ExtendWith(MockitoExtension.class)   // Enables Mockito
+@ExtendWith(MockitoExtension.class)
 public class TransactionServicesTest {
 
-    @Mock  // Fake repository
+    @Mock
     private TransactionRepository transactionRepository;
 
-    @InjectMocks   // real services with fake repo
+    @InjectMocks
     private TransactionService transactionService;
 
     private Transaction ValidTransaction;
-
     private Transaction InvalidTransaction;
-
     private User currentUser;
 
-    private static final Map<Integer, String> test_Passes = new HashMap<>(); 
-
-    // to make easier for Time-based fields
+    private static final Map<Integer, String> test_Passes = new HashMap<>();
     private static final LocalDateTime TEST_DATE = LocalDateTime.of(2025, 6, 1, 7, 0, 0);
 
     @BeforeAll
@@ -53,8 +49,7 @@ public class TransactionServicesTest {
     }
 
     @BeforeEach
-    public void setup(){
-        // Valid Transaction
+    public void setup() {
         currentUser = User.builder()
                 .id(1L)
                 .role(User.Role.USER)
@@ -69,228 +64,155 @@ public class TransactionServicesTest {
         ValidTransaction.setDate(TEST_DATE);
         ValidTransaction.setUser(currentUser);
 
-        // invalid transaction
         InvalidTransaction = new Transaction();
         InvalidTransaction.setDescription("Failed Transaction");
         InvalidTransaction.setAmount(new BigDecimal("5000.00"));
         InvalidTransaction.setUser(currentUser);
-        // <- MISSING: missing Category, Type and Date
     }
 
     /* ******************** Creating a Transaction ******************** */
     @Test
-    void ValidTransaction_Success(){
-        // ----- When -----
+    void ValidTransaction_Success() {
         transactionService.createTransaction(ValidTransaction);
-
-        // ----- verify -----
         verify(transactionRepository, times(1)).save(any(Transaction.class));
-
-        // test passes
-        test_Passes.put(1, "Test 1: (ValidTransaction_Success): PASS");
+        test_Passes.put(1, "Create: Valid Transaction");
     }
 
     @Test
-    void InvalidTransaction_Fail(){
-        // ----- Given -----
+    void InvalidTransaction_Fail() {
         assertThrows(ValidationException.class, () -> {
             transactionService.createTransaction(InvalidTransaction);
-                }
-        );
-
-        // ----- Verify -----
+        });
         verify(transactionRepository, never()).save(any(Transaction.class));
-
-        // test passes
-        test_Passes.put(2, "Test 2: (InvalidTransaction_Fail): PASS");
+        test_Passes.put(2, "Create: Invalid Transaction Throws Exception");
     }
 
-    /* ******************** Creating a Transaction with Validation checks  ******************** */
+    /*
+     * ******************** Creating a Transaction with Validation checks
+     * ********************
+     */
 
     @Test
-    void ValidateTransaction_Amount_Negatives(){
-        // ----- Given -----
-        ValidTransaction.setAmount(new  BigDecimal("-5000.00"));
-
-        // ----- When -----
+    void ValidateTransaction_Amount_Negatives() {
+        ValidTransaction.setAmount(new BigDecimal("-5000.00"));
         assertThrows(ValidationException.class, () -> {
             transactionService.createTransaction(ValidTransaction);
         });
-
-        // ----- Verify -----
         verify(transactionRepository, never()).save(any(Transaction.class));
-
-        // test passes
-        test_Passes.put(3, "Test 3: (ValidateTransaction_Amount_Negatives): PASS");
+        test_Passes.put(3, "Validate: Amount Negative Throws Exception");
     }
 
     @Test
-    void ValidateTransaction_Description_Is_Null(){
-        // ----- Given -----
+    void ValidateTransaction_Description_Is_Null() {
         ValidTransaction.setDescription(null);
-
-        // ----- When -----
         assertThrows(ValidationException.class, () -> {
             transactionService.createTransaction(ValidTransaction);
         });
-
-        // ----- Verify -----
         verify(transactionRepository, never()).save(any(Transaction.class));
-
-        // test passes
-        test_Passes.put(4, "Test 4: (ValidateTransaction_Description_Is_Null): PASS");
+        test_Passes.put(4, "Validate: Description Null Throws Exception");
     }
 
     @Test
-    void ValidateTransaction_Description_With_White_Spaces(){
-        // ----- Given -----
+    void ValidateTransaction_Description_With_White_Spaces() {
         ValidTransaction.setDescription("    ");
-
-        // ----- When -----
         assertThrows(ValidationException.class, () -> {
             transactionService.createTransaction(ValidTransaction);
         });
-
-        // ----- verify -----
         verify(transactionRepository, never()).save(any(Transaction.class));
-
-        // test passes
-        test_Passes.put(5, "Test 5: (ValidateTransaction_Description_With_White_Spaces): PASS");
+        test_Passes.put(5, "Validate: Description Whitespace Throws Exception");
     }
 
     @Test
-    void ValidateTransaction_Category_Is_Null(){
-        // ----- Given -----
+    void ValidateTransaction_Category_Is_Null() {
         ValidTransaction.setCategory(null);
-
-        // ----- When -----
         assertThrows(ValidationException.class, () -> {
             transactionService.createTransaction(ValidTransaction);
         });
-
-        // ----- Verify -----
         verify(transactionRepository, never()).save(any(Transaction.class));
-
-        // test passes
-        test_Passes.put(6, "Test 6: (ValidateTransaction_Category_Is_Null): PASS");
+        test_Passes.put(6, "Validate: Category Null Throws Exception");
     }
 
     @Test
-    void ValidateTransaction_Category_With_White_Spaces(){
-        // ----- Given -----
+    void ValidateTransaction_Category_With_White_Spaces() {
         ValidTransaction.setCategory("    ");
-
-        // ----- When -----
         assertThrows(ValidationException.class, () -> {
             transactionService.createTransaction(ValidTransaction);
         });
-
-        // ----- Verify -----
         verify(transactionRepository, never()).save(any(Transaction.class));
-
-        // test passes
-        test_Passes.put(7, "Test 7: (ValidateTransaction_Category_With_White_Spaces): PASS");
+        test_Passes.put(7, "Validate: Category Whitespace Throws Exception");
     }
 
     @Test
-    void ValidateTransaction_Date_Is_Null(){
-        // ----- Given -----
+    void ValidateTransaction_Date_Is_Null() {
         ValidTransaction.setDate(null);
-
-        // ----- When -----
         assertThrows(ValidationException.class, () -> {
             transactionService.createTransaction(ValidTransaction);
         });
-
-        // ----- Verify -----
         verify(transactionRepository, never()).save(any(Transaction.class));
-
-        // test passes
-        test_Passes.put(8, "Test 8: (ValidateTransaction_Date_Is_Null): PASS");
+        test_Passes.put(8, "Validate: Date Null Throws Exception");
     }
 
-    /* ******************** findian a List of Transactions ******************** */
+    /* ******************** Finding a List of Transactions ******************** */
 
     @Test
-    void getAllTransaction_ExistingList(){
-        // Given
+    void getAllTransaction_ExistingList() {
         List<Transaction> expected = List.of(ValidTransaction);
-        when(transactionRepository.findByUser(currentUser))
-                .thenReturn(expected);
+        when(transactionRepository.findByUser(currentUser)).thenReturn(expected);
 
-        // When
         List<Transaction> res = transactionService.findTransactionsByUser(currentUser);
 
-        // Assert and verify
         assertEquals(1, res.size());
         assertEquals("Shopping", res.get(0).getCategory());
         assertEquals("TestUser123", res.get(0).getUser().getUsername());
         verify(transactionRepository, times(1)).findByUser(currentUser);
-
-        // test passes
-        test_Passes.put(9, "Test 9: (getAllTransaction_ExistingList): PASS");
+        test_Passes.put(9, "Find: Get All Transactions With Existing List");
     }
 
     @Test
-    void getAllTransaction_EmptyList(){
-        // Given
+    void getAllTransaction_EmptyList() {
         List<Transaction> expected = List.of();
-        when(transactionRepository.findByUser(currentUser))
-                .thenReturn(expected);
+        when(transactionRepository.findByUser(currentUser)).thenReturn(expected);
 
-        // When
         List<Transaction> res = transactionService.findTransactionsByUser(currentUser);
 
-        // Assert and verify
         assertEquals(0, res.size());
         verify(transactionRepository, times(1)).findByUser(currentUser);
-
-        // test passes
-        test_Passes.put(10, "Test 10: (getAllTransaction_EmptyList): PASS");
+        test_Passes.put(10, "Find: Get All Transactions With Empty List");
     }
 
-    /* ******************** findian Transaction based on ID and USER ******************** */
+    /*
+     * ******************** Finding Transaction based on ID and USER
+     * ********************
+     */
 
     @Test
-    void getTransaction_ExistingId(){
-        // Given
+    void getTransaction_ExistingId() {
         when(transactionRepository.findByIdAndUser(1L, currentUser))
                 .thenReturn(Optional.of(ValidTransaction));
 
-        // When
         Transaction res = transactionService.getTransactionByIdAndUser(1L, currentUser);
 
-        // assert and Verify
-        assertNotNull(res); // check if the object is NOT null
+        assertNotNull(res);
         assertEquals("Shopping", res.getCategory());
         assertEquals("TestUser123", res.getUser().getUsername());
-        verify(transactionRepository, times(1))
-                .findByIdAndUser(1L, currentUser);
-
-        // test passes
-        test_Passes.put(11, "Test 11: (getTransaction_ExistingId): PASS");
+        verify(transactionRepository, times(1)).findByIdAndUser(1L, currentUser);
+        test_Passes.put(11, "Find: Get Transaction By Existing ID");
     }
 
     @Test
-    void getTransaction_Non_ExistingId(){
-        // Given
+    void getTransaction_Non_ExistingId() {
         when(transactionRepository.findByIdAndUser(1L, currentUser))
                 .thenReturn(Optional.empty());
 
-        // test and verify
         assertThrows(TransactionNotFoundException.class, () -> transactionService
                 .getTransactionByIdAndUser(1L, currentUser));
-        verify(transactionRepository, times(1))
-                .findByIdAndUser(1L, currentUser);
-
-        // test passes
-        test_Passes.put(12, "Test 12: (getTransaction_Non_ExistingId): PASS");
+        verify(transactionRepository, times(1)).findByIdAndUser(1L, currentUser);
+        test_Passes.put(12, "Find: Get Transaction By Non-Existing ID Throws Exception");
     }
 
     /* ******************** Update Transaction based on ID ******************** */
     @Test
-    void updateTransaction_ExistingId_Valid_Transaction(){
-        // Given
+    void updateTransaction_ExistingId_Valid_Transaction() {
         when(transactionRepository.findByIdAndUser(1L, currentUser))
                 .thenReturn(Optional.of(ValidTransaction));
 
@@ -302,141 +224,148 @@ public class TransactionServicesTest {
         updated_Valid_Transaction.setDate(TEST_DATE);
         updated_Valid_Transaction.setUser(currentUser);
 
-        // When
         String res = transactionService.updateTransaction(1L, updated_Valid_Transaction, currentUser);
 
-        // assert Ans Verify
         assertEquals("Transaction updated with ID: 1", res);
-        verify(transactionRepository, times(1))
-                .findByIdAndUser(1L, currentUser);
-        
-        verify(transactionRepository, times(1))
-                .save(any(Transaction.class));
-
-        // test passes
-        test_Passes.put(13, "Test 13: (updateTransaction_ExistingId_Valid_Transaction): PASS");
+        verify(transactionRepository, times(1)).findByIdAndUser(1L, currentUser);
+        verify(transactionRepository, times(1)).save(any(Transaction.class));
+        test_Passes.put(13, "Update: Existing ID With Valid Transaction");
     }
 
     @Test
-    void update_Transaction_ExistingID_Invalid_Transaction(){
-        // Given -> unnecessary sice validation will fail
+    void update_Transaction_ExistingID_Invalid_Transaction() {
         Transaction updated_Invalid_Transaction = new Transaction();
         updated_Invalid_Transaction.setDescription("Bought XBox Series X");
         updated_Invalid_Transaction.setAmount(new BigDecimal("699.99"));
-        updated_Invalid_Transaction.setTransactionType(null); // will throw ValidationException
+        updated_Invalid_Transaction.setTransactionType(null);
 
-        // assert and verify
         assertThrows(ValidationException.class, () -> transactionService
                 .updateTransaction(1L, updated_Invalid_Transaction, currentUser));
 
         verify(transactionRepository, never()).save(any(Transaction.class));
         verify(transactionRepository, never()).findByIdAndUser(1L, currentUser);
-
-        // test passes
-        test_Passes.put(14, "Test 14: (update_Transaction_ExistingID_Invalid_Transaction): PASS");
+        test_Passes.put(14, "Update: Existing ID With Invalid Transaction Throws Exception");
     }
 
     @Test
-    void Update_Transaction_Non_ExistingID_Valid_Transaction(){
-        // Given
+    void Update_Transaction_Non_ExistingID_Valid_Transaction() {
         when(transactionRepository.findByIdAndUser(5L, currentUser))
                 .thenReturn(Optional.empty());
 
-        // assert and verify
         assertThrows(TransactionNotFoundException.class, () -> transactionService
                 .updateTransaction(5L, ValidTransaction, currentUser));
 
-        verify(transactionRepository, times(1))
-                .findByIdAndUser(5L, currentUser);
-
+        verify(transactionRepository, times(1)).findByIdAndUser(5L, currentUser);
         verify(transactionRepository, never()).save(any(Transaction.class));
-
-        // test passes
-        test_Passes.put(15, "Test 15: (Update_Transaction_Non_ExistingID_Valid_Transaction): PASS");
+        test_Passes.put(15, "Update: Non-Existing ID With Valid Transaction Throws Exception");
     }
 
-    /* ******************** Deleting a Transaction based on ID ******************** */
+    /*
+     * ******************** Deleting a Transaction based on ID ********************
+     */
 
     @Test
-    void Delete_Transaction_ExistingId(){
-        // Given
+    void Delete_Transaction_ExistingId() {
         when(transactionRepository.findByIdAndUser(1L, currentUser)).thenReturn(Optional.of(ValidTransaction));
 
-        // When
         String res = transactionService.deleteTransaction(1L, currentUser);
 
-        // assert and verify
         assertEquals("Transaction deleted with ID: 1", res);
-
-        verify(transactionRepository, times(1))
-                .findByIdAndUser(1L, currentUser);
-        
-        verify(transactionRepository, times(1))
-                .delete(any(Transaction.class));
-
-        // test passes
-        test_Passes.put(16, "Test 16: (Delete_Transaction_ExistingId): PASS");
+        verify(transactionRepository, times(1)).findByIdAndUser(1L, currentUser);
+        verify(transactionRepository, times(1)).delete(any(Transaction.class));
+        test_Passes.put(16, "Delete: Transaction With Existing ID");
     }
 
     @Test
-    void Delete_Transaction_Non_ExistingId(){
-        // Given
+    void Delete_Transaction_Non_ExistingId() {
         when(transactionRepository.findByIdAndUser(4L, currentUser))
                 .thenReturn(Optional.empty());
 
-        // assert and verify
         assertThrows(TransactionNotFoundException.class,
-                () -> transactionService.deleteTransaction(4L,currentUser));
+                () -> transactionService.deleteTransaction(4L, currentUser));
 
-        verify(transactionRepository, times(1))
-                .findByIdAndUser(4L,currentUser);
-
-        verify(transactionRepository, never())
-                .delete(any(Transaction.class));
-
-        // test passes
-        test_Passes.put(17, "Test 17: (Delete_Transaction_Non_ExistingId): PASS");
+        verify(transactionRepository, times(1)).findByIdAndUser(4L, currentUser);
+        verify(transactionRepository, never()).delete(any(Transaction.class));
+        test_Passes.put(17, "Delete: Transaction With Non-Existing ID Throws Exception");
     }
 
-      /* Printing Test Case Passes */
-  @AfterAll
-  static void afterAll() {
-    int maxLength = 0;
-    // We create a temporary list to hold just the test names
-    List<String> testNames = new ArrayList<>();
-    int totalTests = 17; // each @Test method is one test
-    int passedTests = 0;
+    @AfterAll
+    static void afterAll() {
+        int maxLength = 0;
+        int totalTests = 17;
+        int passedTests = test_Passes.size();
 
-    for (String result : test_Passes.values()) {
-      // Remove the ": Pass" part to get the actual test name
-      String testName = result.replace(": PASS", "");
-      testNames.add(testName);
+        // Separate tests by operation type
+        Map<Integer, String> createTests = new TreeMap<>();
+        Map<Integer, String> validateTests = new TreeMap<>();
+        Map<Integer, String> findTests = new TreeMap<>();
+        Map<Integer, String> updateTests = new TreeMap<>();
+        Map<Integer, String> deleteTests = new TreeMap<>();
 
-      // Find the longest name
-      if (testName.length() > maxLength) {
-        maxLength = testName.length();
-      }
-      passedTests++;
+        for (Map.Entry<Integer, String> entry : test_Passes.entrySet()) {
+            String testName = entry.getValue();
+            if (testName.startsWith("Create:")) {
+                createTests.put(entry.getKey(), testName);
+            } else if (testName.startsWith("Validate:")) {
+                validateTests.put(entry.getKey(), testName);
+            } else if (testName.startsWith("Find:")) {
+                findTests.put(entry.getKey(), testName);
+            } else if (testName.startsWith("Update:")) {
+                updateTests.put(entry.getKey(), testName);
+            } else if (testName.startsWith("Delete:")) {
+                deleteTests.put(entry.getKey(), testName);
+            }
+
+            if (testName.length() > maxLength) {
+                maxLength = testName.length();
+            }
+        }
+
+        String format = "Test %-2d: %-" + maxLength + "s -> %s%n";
+
+        System.out.println("\n--- TransactionService Test Results ---");
+
+        if (!createTests.isEmpty()) {
+            System.out.println("\n=== CREATE TESTS ===");
+            for (Map.Entry<Integer, String> entry : createTests.entrySet()) {
+                System.out.printf(format, entry.getKey(), entry.getValue(), "PASS");
+            }
+        }
+
+        if (!validateTests.isEmpty()) {
+            System.out.println("\n=== VALIDATION TESTS ===");
+            for (Map.Entry<Integer, String> entry : validateTests.entrySet()) {
+                System.out.printf(format, entry.getKey(), entry.getValue(), "PASS");
+            }
+        }
+
+        if (!findTests.isEmpty()) {
+            System.out.println("\n=== FIND TESTS ===");
+            for (Map.Entry<Integer, String> entry : findTests.entrySet()) {
+                System.out.printf(format, entry.getKey(), entry.getValue(), "PASS");
+            }
+        }
+
+        if (!updateTests.isEmpty()) {
+            System.out.println("\n=== UPDATE TESTS ===");
+            for (Map.Entry<Integer, String> entry : updateTests.entrySet()) {
+                System.out.printf(format, entry.getKey(), entry.getValue(), "PASS");
+            }
+        }
+
+        if (!deleteTests.isEmpty()) {
+            System.out.println("\n=== DELETE TESTS ===");
+            for (Map.Entry<Integer, String> entry : deleteTests.entrySet()) {
+                System.out.printf(format, entry.getKey(), entry.getValue(), "PASS");
+            }
+        }
+
+        System.out.println("\n---------------------------------");
+
+        if (passedTests == totalTests)
+            System.out.println("SUMMARY: All " + passedTests + "/" + totalTests + " tests passed!");
+        else
+            System.out.println("SUMMARY: " + passedTests + "/" + totalTests + " tests passed.");
+        System.out.println("---------------------------------");
     }
-
-    // --- Step 2: Create a dynamic format string ---
-    // This creates a format like "%-50s %s%n", where 50 is the max length
-    // The "%-" means left-justify and pad with spaces.
-    String format = "%-" + (maxLength) + "s    -> %s%n";
-
-    // --- Step 3: Print the results using the new format ---
-    System.out.println("\n--- TransactionService Test Results ---");
-    for (String name : testNames) {
-      System.out.printf(format, name, "Pass");
-    }
-    System.out.println("---------------------------------");
-
-    if (passedTests == totalTests)
-      System.out.println("SUMMARY: All " + passedTests + "/" + totalTests + " tests passed!");
-    else
-      System.out.println("SUMMARY: " + passedTests + "/" + totalTests + " tests passed.");
-    System.out.println("---------------------------------");
-  }
-
-
 }
