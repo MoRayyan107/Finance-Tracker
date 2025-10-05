@@ -38,8 +38,9 @@ document.addEventListener("DOMContentLoaded", () => {
       // check the response
       if(!Response.ok){
         // is response is not ok, show error message
-        errorMessage.style.display = 'block';
-        throw new Error('Login failed');
+        errorBox.style.display = 'block';
+        errorMessage.textContent = "Invalid Credentials";
+        e
       }
       // if login is successful, parse the JSON response
       return Response.json();
@@ -50,7 +51,7 @@ document.addEventListener("DOMContentLoaded", () => {
       // store the JWT token in local storage
       localStorage.setItem('token', data.token);
       // redirect to dashboard
-      window.location.href = '/dashboard.html';
+      window.location.href = '/dashboard';
     })
     .catch(error => {
       // FAILED LOGIN

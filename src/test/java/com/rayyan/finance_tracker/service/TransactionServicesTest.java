@@ -5,6 +5,9 @@ import com.rayyan.finance_tracker.entity.User;
 import com.rayyan.finance_tracker.exceptions.TransactionNotFoundException;
 import com.rayyan.finance_tracker.exceptions.ValidationException;
 import com.rayyan.finance_tracker.repository.TransactionRepository;
+
+import org.junit.jupiter.api.AfterAll;
+import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
@@ -14,7 +17,10 @@ import org.mockito.junit.jupiter.MockitoExtension;
 
 import java.math.BigDecimal;
 import java.time.LocalDateTime;
+import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 import java.util.Optional;
 
 import static org.junit.jupiter.api.Assertions.*;
@@ -36,8 +42,15 @@ public class TransactionServicesTest {
 
     private User currentUser;
 
+    private static final Map<Integer, String> test_Passes = new HashMap<>(); 
+
     // to make easier for Time-based fields
     private static final LocalDateTime TEST_DATE = LocalDateTime.of(2025, 6, 1, 7, 0, 0);
+
+    @BeforeAll
+    static void beforeAll() {
+        System.out.println("\n--- Starting TransactionService Tests ---");
+    }
 
     @BeforeEach
     public void setup(){
@@ -72,6 +85,9 @@ public class TransactionServicesTest {
 
         // ----- verify -----
         verify(transactionRepository, times(1)).save(any(Transaction.class));
+
+        // test passes
+        test_Passes.put(1, "Test 1: (ValidTransaction_Success): PASS");
     }
 
     @Test
@@ -84,6 +100,9 @@ public class TransactionServicesTest {
 
         // ----- Verify -----
         verify(transactionRepository, never()).save(any(Transaction.class));
+
+        // test passes
+        test_Passes.put(2, "Test 2: (InvalidTransaction_Fail): PASS");
     }
 
     /* ******************** Creating a Transaction with Validation checks  ******************** */
@@ -100,6 +119,9 @@ public class TransactionServicesTest {
 
         // ----- Verify -----
         verify(transactionRepository, never()).save(any(Transaction.class));
+
+        // test passes
+        test_Passes.put(3, "Test 3: (ValidateTransaction_Amount_Negatives): PASS");
     }
 
     @Test
@@ -114,6 +136,9 @@ public class TransactionServicesTest {
 
         // ----- Verify -----
         verify(transactionRepository, never()).save(any(Transaction.class));
+
+        // test passes
+        test_Passes.put(4, "Test 4: (ValidateTransaction_Description_Is_Null): PASS");
     }
 
     @Test
@@ -128,6 +153,9 @@ public class TransactionServicesTest {
 
         // ----- verify -----
         verify(transactionRepository, never()).save(any(Transaction.class));
+
+        // test passes
+        test_Passes.put(5, "Test 5: (ValidateTransaction_Description_With_White_Spaces): PASS");
     }
 
     @Test
@@ -142,6 +170,9 @@ public class TransactionServicesTest {
 
         // ----- Verify -----
         verify(transactionRepository, never()).save(any(Transaction.class));
+
+        // test passes
+        test_Passes.put(6, "Test 6: (ValidateTransaction_Category_Is_Null): PASS");
     }
 
     @Test
@@ -156,6 +187,9 @@ public class TransactionServicesTest {
 
         // ----- Verify -----
         verify(transactionRepository, never()).save(any(Transaction.class));
+
+        // test passes
+        test_Passes.put(7, "Test 7: (ValidateTransaction_Category_With_White_Spaces): PASS");
     }
 
     @Test
@@ -170,6 +204,9 @@ public class TransactionServicesTest {
 
         // ----- Verify -----
         verify(transactionRepository, never()).save(any(Transaction.class));
+
+        // test passes
+        test_Passes.put(8, "Test 8: (ValidateTransaction_Date_Is_Null): PASS");
     }
 
     /* ******************** findian a List of Transactions ******************** */
@@ -189,6 +226,9 @@ public class TransactionServicesTest {
         assertEquals("Shopping", res.get(0).getCategory());
         assertEquals("TestUser123", res.get(0).getUser().getUsername());
         verify(transactionRepository, times(1)).findByUser(currentUser);
+
+        // test passes
+        test_Passes.put(9, "Test 9: (getAllTransaction_ExistingList): PASS");
     }
 
     @Test
@@ -204,6 +244,9 @@ public class TransactionServicesTest {
         // Assert and verify
         assertEquals(0, res.size());
         verify(transactionRepository, times(1)).findByUser(currentUser);
+
+        // test passes
+        test_Passes.put(10, "Test 10: (getAllTransaction_EmptyList): PASS");
     }
 
     /* ******************** findian Transaction based on ID and USER ******************** */
@@ -223,6 +266,9 @@ public class TransactionServicesTest {
         assertEquals("TestUser123", res.getUser().getUsername());
         verify(transactionRepository, times(1))
                 .findByIdAndUser(1L, currentUser);
+
+        // test passes
+        test_Passes.put(11, "Test 11: (getTransaction_ExistingId): PASS");
     }
 
     @Test
@@ -236,6 +282,9 @@ public class TransactionServicesTest {
                 .getTransactionByIdAndUser(1L, currentUser));
         verify(transactionRepository, times(1))
                 .findByIdAndUser(1L, currentUser);
+
+        // test passes
+        test_Passes.put(12, "Test 12: (getTransaction_Non_ExistingId): PASS");
     }
 
     /* ******************** Update Transaction based on ID ******************** */
@@ -260,6 +309,12 @@ public class TransactionServicesTest {
         assertEquals("Transaction updated with ID: 1", res);
         verify(transactionRepository, times(1))
                 .findByIdAndUser(1L, currentUser);
+        
+        verify(transactionRepository, times(1))
+                .save(any(Transaction.class));
+
+        // test passes
+        test_Passes.put(13, "Test 13: (updateTransaction_ExistingId_Valid_Transaction): PASS");
     }
 
     @Test
@@ -276,6 +331,9 @@ public class TransactionServicesTest {
 
         verify(transactionRepository, never()).save(any(Transaction.class));
         verify(transactionRepository, never()).findByIdAndUser(1L, currentUser);
+
+        // test passes
+        test_Passes.put(14, "Test 14: (update_Transaction_ExistingID_Invalid_Transaction): PASS");
     }
 
     @Test
@@ -290,6 +348,11 @@ public class TransactionServicesTest {
 
         verify(transactionRepository, times(1))
                 .findByIdAndUser(5L, currentUser);
+
+        verify(transactionRepository, never()).save(any(Transaction.class));
+
+        // test passes
+        test_Passes.put(15, "Test 15: (Update_Transaction_Non_ExistingID_Valid_Transaction): PASS");
     }
 
     /* ******************** Deleting a Transaction based on ID ******************** */
@@ -307,6 +370,12 @@ public class TransactionServicesTest {
 
         verify(transactionRepository, times(1))
                 .findByIdAndUser(1L, currentUser);
+        
+        verify(transactionRepository, times(1))
+                .delete(any(Transaction.class));
+
+        // test passes
+        test_Passes.put(16, "Test 16: (Delete_Transaction_ExistingId): PASS");
     }
 
     @Test
@@ -321,6 +390,53 @@ public class TransactionServicesTest {
 
         verify(transactionRepository, times(1))
                 .findByIdAndUser(4L,currentUser);
+
+        verify(transactionRepository, never())
+                .delete(any(Transaction.class));
+
+        // test passes
+        test_Passes.put(17, "Test 17: (Delete_Transaction_Non_ExistingId): PASS");
     }
+
+      /* Printing Test Case Passes */
+  @AfterAll
+  static void afterAll() {
+    int maxLength = 0;
+    // We create a temporary list to hold just the test names
+    List<String> testNames = new ArrayList<>();
+    int totalTests = 14; // each Register and Authenticate has 7 tests
+    int passedTests = 0;
+
+    for (String result : test_Passes.values()) {
+      // Remove the ": Pass" part to get the actual test name
+      String testName = result.replace(": PASS", "");
+      testNames.add(testName);
+
+      // Find the longest name
+      if (testName.length() > maxLength) {
+        maxLength = testName.length();
+      }
+      passedTests++;
+    }
+
+    // --- Step 2: Create a dynamic format string ---
+    // This creates a format like "%-50s %s%n", where 50 is the max length
+    // The "%-" means left-justify and pad with spaces.
+    String format = "%-" + (maxLength) + "s    -> %s%n";
+
+    // --- Step 3: Print the results using the new format ---
+    System.out.println("\n--- TransactionService Test Results ---");
+    for (String name : testNames) {
+      System.out.printf(format, name, "Pass");
+    }
+    System.out.println("---------------------------------");
+
+    if (passedTests == totalTests)
+      System.out.println("SUMMARY: All " + passedTests + "/" + totalTests + " tests passed!");
+    else
+      System.out.println("SUMMARY: " + passedTests + "/" + totalTests + " tests passed.");
+    System.out.println("---------------------------------");
+  }
+
 
 }

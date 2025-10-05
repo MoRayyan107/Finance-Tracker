@@ -18,6 +18,11 @@ public class UtilsTest {
     private List<String> errors;
     private static final Map<Integer,String> test_Passes = new HashMap<>();
 
+    @BeforeAll
+    static void beforeAll() {
+        System.out.println("\n--- Starting Utils Tests ---");
+    }
+
     @BeforeEach
     public void setUp(){
         errors = new ArrayList<>();
@@ -118,7 +123,7 @@ public class UtilsTest {
 
         for (String result : test_Passes.values()) {
             // Remove the ": Pass" part to get the actual test name
-            String testName = result.replace(": Pass", "");
+            String testName = result.replace(": PASS", "");
             testNames.add(testName);
 
             // Find the longest name
@@ -134,7 +139,7 @@ public class UtilsTest {
         String format = "%-" + (maxLength) + "s    -> %s%n";
 
         // --- Step 3: Print the results using the new format ---
-        System.out.println("\n--- AuthController Test Results ---");
+        System.out.println("\n--- Utils Test Results ---");
         for (String name : testNames) {
             System.out.printf(format, name, "Pass");
         }

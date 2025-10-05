@@ -1,6 +1,5 @@
 package com.rayyan.finance_tracker;
 
-import org.hibernate.AssertionFailure;
 
 public class TestConstants {
 
@@ -32,6 +31,17 @@ public class TestConstants {
     public static final int MIN_PASSWORD_LENGTH = 8;
     public static final int MAX_PASSWORD_LENGTH = 50;
 
+    // For User Detail Service Test
+    public static final String EXISTING_USERNAME = "testUser@123";
+    public static final String NON_EXISTING_USERNAME = "nonExistingUser@123";
+
+    // Encoded Password Dummy
+    public static final String TEST_ENCODED_PASSWORD = "$2a$10$Dow1b0f6dG7qJ8e3t8h8EuFvYzFh8EuFvYzFh8EuFvYzFh8EuFvYzFh8Eu"; // bcrypt encoded version of "testPassword123"
+
+    // Dummy JWT Secret Key
+    public static final String DUMMY_JWT_SECRET_KEY = "404E635266556A586E3272357538782F413F4428472B4B6250645367566B5970";
+
+    
     // prevention instantiation
     private TestConstants() {
         throw new AssertionError("Cannot instantiate constants class");
