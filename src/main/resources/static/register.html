@@ -1,0 +1,36 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Register - Finance Tracker</title>
+    <link rel="stylesheet" href="css/style.css">
+</head>
+<body>
+    <div class = "auth-container">
+        <h2>Create an Account</h2>
+        <form id="register-form">
+            <div class="form-group">
+                <label for="username">Username*</label>
+                <input type="text" id="username" name="username" required title="Username must be 3-15 characters long and can include letters, numbers, and underscores.">
+            </div>
+            <div class="form-group">
+                <label for="password">Password*</label>
+                <input type="password" id="password" name="password" required title="Password must be at least 8 characters long and include at least one uppercase letter, one lowercase letter, one digit, and one special character.">
+            </div>
+            <div class="form-group">
+                <label for="username">Re-Type Password*</label>
+                <input type="password" id="confirm-password" name="password" required title="Re-Type your password">
+            </div>
+            <button type="submit">Register</button>
+        </form>
+        <div class="error-box" id="error-box">
+            <p id="error-message" class="error-message"></p>
+        </div>
+        <div class="login-link">
+            <p>Already have an account? <a href="/login">Login here!</a></p>
+        </div>
+    </div>
+    <script src="js/register.js"></script>
+</body>
+</html>

@@ -14,6 +14,8 @@ import org.springframework.http.MediaType;
 import org.springframework.test.context.bean.override.mockito.MockitoBean;
 import org.springframework.test.web.servlet.MockMvc;
 
+import static com.rayyan.finance_tracker.TestConstants.*;
+
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
@@ -40,19 +42,11 @@ public class AuthControllerTest {
     
     private static final Map<Integer,String> result = new HashMap<>();
 
-    private static final String DUMMY_JWT_TOKEN = "DUMMY_JWT_TOKEN_GENERATED_123";
+    @BeforeAll
+    static void beforeAll() {
+        System.out.println("\n--- Starting AuthController Tests ---");
+    }
 
-    // Username Properties
-    private static final String VALID_USERNAME = "testUser123";
-    private static final String LONG_USERNAME = "Pseudopseudohypoparathyroidism"; // more than 20 characters
-    private static final String SHORT_USERNAME = "AC"; // less than 4 characters
-    private static final String NULL_OR_EMPTY_USERNAME = "";
-
-    // Password properties
-    private static final String VALID_PASSWORD = "testPassword123";
-    private static final String LONG_PASSWORD = "Pneumonoultramicroscopicsilicovolcanoconiosisassupercalifragilisticexpialidocious"; // more than 50 characters
-    private static final String SHORT_PASSWORD = "ABC"; // less than 8 characters
-    private static final String NULL_OR_EMPTY_PASSWORD = "";
 
 
     /* ******************************** Registration Tests ******************************** */
@@ -81,7 +75,7 @@ public class AuthControllerTest {
                 .andExpect(jsonPath("$.jwtToken").value(DUMMY_JWT_TOKEN));
 
         // Debug
-        result.put(1,"Test 1 (register_ValidCredentials_Success): Pass");
+        result.put(1,"Test 1 (register_ValidCredentials_Success): PASS");
 
         verify(authenticationService, times(1)).register(any(RegisterRequest.class));
     }
@@ -109,7 +103,7 @@ public class AuthControllerTest {
                 );
 
         // Debug
-        result.put(2,"Test 2 (register_UsernameNull_Fail): Pass");
+        result.put(2,"Test 2 (register_UsernameNull_Fail): PASS");
 
         verify(authenticationService, times(1)).register(any(RegisterRequest.class));
     }
@@ -137,7 +131,7 @@ public class AuthControllerTest {
                 .andExpect(jsonPath("$.message").value("Username can't be less than 4 characters"));
 
         // Debug
-        result.put(3,"Test 3 (register_UsernameTooShort_Fail): Pass");
+        result.put(3,"Test 3 (register_UsernameTooShort_Fail): PASS");
 
         verify(authenticationService, times(1)).register(any(RegisterRequest.class));
     }
@@ -166,7 +160,7 @@ public class AuthControllerTest {
                 );
 
         // Debug
-        result.put(4,"Test 4 (register_UsernameTooLong_Fail): Pass");
+        result.put(4,"Test 4 (register_UsernameTooLong_Fail): PASS");
 
         verify(authenticationService, times(1)).register(any(RegisterRequest.class));
     }
@@ -194,7 +188,7 @@ public class AuthControllerTest {
                 );
 
         // Debug
-        result.put(5,"Test 5 (register_PasswordNull_Fail): Pass");
+        result.put(5,"Test 5 (register_PasswordNull_Fail): PASS");
 
         verify(authenticationService, times(1)).register(any(RegisterRequest.class));
     }
@@ -222,7 +216,7 @@ public class AuthControllerTest {
                 );
 
         // Debug
-        result.put(6,"Test 6 (register_PasswordTooShort_Fail): Pass");
+        result.put(6,"Test 6 (register_PasswordTooShort_Fail): PASS");
 
         verify(authenticationService, times(1)).register(any(RegisterRequest.class));
     }
@@ -251,7 +245,7 @@ public class AuthControllerTest {
                 );
 
         // Debug
-        result.put(7,"Test 7 (register_UsernameTooLong_Fail): Pass");
+        result.put(7,"Test 7 (register_UsernameTooLong_Fail): PASS");
 
         verify(authenticationService, times(1)).register(any(RegisterRequest.class));
     }
@@ -282,7 +276,7 @@ public class AuthControllerTest {
                 .andExpect(jsonPath("$.jwtToken").value(DUMMY_JWT_TOKEN));
 
         // Debug
-        result.put(8,"Test 8 (Login_ValidCredentials_Success): Pass");
+        result.put(8,"Test 8 (Login_ValidCredentials_Success): PASS");
 
         verify(authenticationService, times(1)).authenticate(any(AuthenticationRequest.class));
 
@@ -311,7 +305,7 @@ public class AuthControllerTest {
                 );
 
         // Debug
-        result.put(9,"Test 9 (login_UsernameNull_Or_Empty_Fail): Pass");
+        result.put(9,"Test 9 (login_UsernameNull_Or_Empty_Fail): PASS");
 
         verify(authenticationService, times(1)).authenticate(any(AuthenticationRequest.class));
 
@@ -340,7 +334,7 @@ public class AuthControllerTest {
                 .andExpect(jsonPath("$.message").value("Username can't be less than 4 characters"));
 
         // Debug
-        result.put(10,"Test 10 (register_UsernameTooShort_Fail): Pass");
+        result.put(10,"Test 10 (register_UsernameTooShort_Fail): PASS");
 
         verify(authenticationService, times(1)).authenticate(any(AuthenticationRequest.class));
     }
@@ -369,7 +363,7 @@ public class AuthControllerTest {
                 );
 
         // Debug
-        result.put(11,"Test 11 (login_UsernameTooLong_Fail): Pass");
+        result.put(11,"Test 11 (login_UsernameTooLong_Fail): PASS");
 
         verify(authenticationService, times(1)).authenticate(any(AuthenticationRequest.class));
     }
@@ -397,7 +391,7 @@ public class AuthControllerTest {
                 );
 
         // Debug
-        result.put(12,"Test 12 (register_PasswordNull_Fail): Pass");
+        result.put(12,"Test 12 (register_PasswordNull_Fail): PASS");
 
         verify(authenticationService, times(1)).authenticate(any(AuthenticationRequest.class));
     }
@@ -425,7 +419,7 @@ public class AuthControllerTest {
                 );
 
         // Debug
-        result.put(13,"Test 13 (login_PasswordTooShort_Fail): Pass");
+        result.put(13,"Test 13 (login_PasswordTooShort_Fail): PASS");
 
         verify(authenticationService, times(1)).authenticate(any(AuthenticationRequest.class));
     }
@@ -454,7 +448,7 @@ public class AuthControllerTest {
                 );
 
         // Debug
-        result.put(14,"Test 14 (login_UsernameTooLong_Fail): Pass");
+        result.put(14,"Test 14 (login_UsernameTooLong_Fail): PASS");
 
         verify(authenticationService, times(1)).authenticate(any(AuthenticationRequest.class));
     }
@@ -470,8 +464,8 @@ public class AuthControllerTest {
         int passedTests = 0;
 
         for (String result : result.values()) {
-            // Remove the ": Pass" part to get the actual test name
-            String testName = result.replace(": Pass", "");
+            // Remove the ": PASS" part to get the actual test name
+            String testName = result.replace(": PASS", "");
             testNames.add(testName);
 
             // Find the longest name
@@ -489,7 +483,7 @@ public class AuthControllerTest {
         // --- Step 3: Print the results using the new format ---
         System.out.println("\n--- AuthController Test Results ---");
         for (String name : testNames) {
-            System.out.printf(format, name, "Pass");
+            System.out.printf(format, name, "PASS");
         }
         System.out.println("---------------------------------");
 

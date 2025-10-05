@@ -30,20 +30,19 @@ public class ApplicationConfig {
         http
                 .csrf(AbstractHttpConfigurer::disable)
                 .authorizeHttpRequests(authRequest -> authRequest
-                                .requestMatchers("/api/auth/**").permitAll()
-                                .requestMatchers("/", "/*.html", "/css/**", "/js/**").permitAll()
-                        .anyRequest().authenticated()
-                )
+                        .requestMatchers("/api/auth/**").permitAll()
+                        .requestMatchers("/", "/*.html", "/css/**", "/js/**").permitAll()
+                        .requestMatchers("/login", "/register","/dashboard").permitAll()
+                        .anyRequest().authenticated())
                 .sessionManagement(session -> session
-                        .sessionCreationPolicy(SessionCreationPolicy.STATELESS)
-                )
+                        .sessionCreationPolicy(SessionCreationPolicy.STATELESS))
                 .authenticationProvider(authenticationProvider())
                 .addFilterBefore(jwtAuthFilter, UsernamePasswordAuthenticationFilter.class);
         return http.build();
     }
 
     @Bean
-    public AuthenticationProvider authenticationProvider(){
+    public AuthenticationProvider authenticationProvider() {
         DaoAuthenticationProvider daoAuthProvider = new DaoAuthenticationProvider(userDetailsService);
         daoAuthProvider.setPasswordEncoder(PasswordEncoder());
         return daoAuthProvider;
@@ -55,7 +54,7 @@ public class ApplicationConfig {
     }
 
     @Bean
-    public PasswordEncoder PasswordEncoder(){
+    public PasswordEncoder PasswordEncoder() {
         return new BCryptPasswordEncoder();
     }
 

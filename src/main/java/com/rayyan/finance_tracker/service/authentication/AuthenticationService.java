@@ -13,6 +13,12 @@ import org.springframework.security.authentication.UsernamePasswordAuthenticatio
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 
+import static com.rayyan.constants.Constants.MAX_USERNAME_LENGTH;
+import static com.rayyan.constants.Constants.MIN_USERNAME_LENGTH;
+
+import static com.rayyan.constants.Constants.MAX_PASSWORD_LENGTH;
+import static com.rayyan.constants.Constants.MIN_PASSWORD_LENGTH;
+
 import java.util.ArrayList;
 import java.util.List;
 
@@ -25,11 +31,6 @@ public class AuthenticationService {
     private final AuthenticationManager authenticationManager;
     private final UserRepository userRepository;
 
-    private static final int MIN_USERNAME_LENGTH = 4;
-    private static final int MAX_USERNAME_LENGTH = 20;
-
-    private static final int MIN_PASSWORD_LENGTH = 8;
-    private static final int MAX_PASSWORD_LENGTH = 50;
 
     public AuthenticationResponse register(RegisterRequest request) {
         // --------- Check if the request is valid -------------
@@ -97,7 +98,7 @@ public class AuthenticationService {
         ValidatingUtil.checkMaxLength(username,"Username",MAX_USERNAME_LENGTH, exceptions);
         ValidatingUtil.checkMaxLength(password,"Password",MAX_PASSWORD_LENGTH, exceptions);
 
-        // throw the exceptions
+        // throw the ValidationException if any errors exists
         ValidatingUtil.throwIfExists(exceptions);
     }
 }
