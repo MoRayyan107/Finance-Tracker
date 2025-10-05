@@ -4,6 +4,7 @@ import com.rayyan.finance_tracker.entity.User;
 import com.rayyan.finance_tracker.entity.authentication.AuthenticationRequest;
 import com.rayyan.finance_tracker.entity.authentication.AuthenticationResponse;
 import com.rayyan.finance_tracker.entity.authentication.RegisterRequest;
+import com.rayyan.finance_tracker.exceptions.DuplicateCredentialsException;
 import com.rayyan.finance_tracker.exceptions.ValidationException;
 import com.rayyan.finance_tracker.repository.UserRepository;
 import com.rayyan.finance_tracker.service.jwt.JwtService;
@@ -46,11 +47,12 @@ public class AuthenticationService {
         // save the user into the database
         // check for duplicates before saving to produce clearer validation errors
         if (userRepository.findByUsername(user.getUsername()).isPresent()) {
-            throw new ValidationException("Username already exists");
+            throw new DuplicateCredentialsException("Username already exists");
         }
         if (userRepository.findByEmail(user.getEmail()).isPresent()) {
-            throw new ValidationException("Email already exists");
+            throw new DuplicateCredentialsException("Email already exists");
         }
+
 
         userRepository.save(user);
 

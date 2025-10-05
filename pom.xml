@@ -5,7 +5,7 @@
 	<parent>
 		<groupId>org.springframework.boot</groupId>
 		<artifactId>spring-boot-starter-parent</artifactId>
-		<version>3.5.5</version> <!-- Note: As of late 2025, you might be using a newer version -->
+		<version>3.5.6</version> <!-- Note: As of late 2025, you might be using a newer version -->
 		<relativePath/> <!-- lookup parent from repository -->
 	</parent>
 	<groupId>com.rayyan</groupId>

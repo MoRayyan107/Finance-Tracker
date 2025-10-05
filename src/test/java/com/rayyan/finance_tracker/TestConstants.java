@@ -2,6 +2,9 @@ package com.rayyan.finance_tracker;
 
 public class TestConstants {
 
+    // Dummy Secret Key
+    public static final String TEST_SECRET_KEY = "NzIzY2JiM2YtM2YyZi00NjJjLTg2YzYtYjJkYmE0NTU5ZjAx"; // Base64 encoded test key
+
     // JWT Token Dummy
     public static final String DUMMY_JWT_TOKEN = "DUMMY_JWT_TOKEN_GENERATED_123";;
 

@@ -1,42 +1,76 @@
 # 💰 Finance Tracker API
 
-A robust Spring Boot REST API for personal finance management. Track income and expenses with full CRUD operations, validation, and professional error handling.
+A robust Spring Boot REST API for personal finance management.  
+Track income and expenses with full CRUD operations, validation, JWT‑based security, and professional error handling.
+
+---
 
 ## 🚀 Features
 
-- **RESTful API** - Clean JSON endpoints
-- **CRUD Operations** - Create, read, update, delete transactions
-- **Data Validation** - Comprehensive input validation
-- **Error Handling** - Custom exceptions with proper HTTP status codes
-- **Logging** - Production-ready logging with SLF4J
-- **MySQL Integration** - Persistent data storage
-- **Professional Architecture** - Layered structure (Controller → Service → Repository)
-- **Comprehensive Testing** - 75%+ test coverage with JUnit and Mockito
+- **RESTful API** – Clean JSON endpoints
+- **CRUD Operations** – Create, read, update, delete transactions
+- **Data Validation** – Input checks (non-null, ranges, etc.)
+- **Error Handling** – Custom exceptions → correct HTTP status codes
+- **JWT Security** – Authenticated access to endpoints
+- **Logging** – Production‑ready logging via SLF4J
+- **MySQL / JPA** – Persistent data with relational DB
+- **Layered Architecture** – Controller → Service → Repository
+- **Testing** – Unit & integration tests with JUnit & Mockito
+- **Code Coverage** – JaCoCo report
+
+---
 
 ## 📋 API Endpoints
 
-| Method | Endpoint | Description | Status |
-|--------|----------|-------------|--------|
-| `POST` | `/api/transaction/create` | Create a new transaction | ✅ Implemented |
-| `GET` | `/api/transaction/fetch` | Get all transactions | ✅ Implemented |
-| `GET` | `/api/transaction/{id}` | Get transaction by ID | ✅ Implemented |
-| `PUT` | `/api/transaction/update/{id}` | Update a transaction | ✅ Implemented |
-| `DELETE` | `/api/transaction/delete/{id}` | Delete a transaction | ✅ Implemented |
+| Method   | Path                                 | Description                | Status         |
+|----------|---------------------------------------|-----------------------------|----------------|
+| `POST`   | `/api/auth/register`                  | Register a new user         | ✅ Implemented  |
+| `POST`   | `/api/auth/login`                     | Authenticate & get JWT token | ✅ Implemented  |
+| `POST`   | `/api/transaction/create`             | Create a new transaction     | ✅ Implemented  |
+| `GET`    | `/api/transaction/fetch`              | Fetch all transactions       | ✅ Implemented  |
+| `GET`    | `/api/transaction/{id}`               | Get transaction by its ID    | ✅ Implemented  |
+| `PUT`    | `/api/transaction/update/{id}`        | Update transaction by ID     | ✅ Implemented  |
+| `DELETE` | `/api/transaction/delete/{id}`        | Delete transaction by ID     | ✅ Implemented  |
 
-## 🛠️ Technologies Used
+### 🌐 HTML Endpoints
 
-- **Java 23**
+| Path                     | Description                               | Access                      |
+|--------------------------|-------------------------------------------|------------------------------|
+| `/`                      | Home page with application overview       | Public                       |
+| `/login`                 | User login page                           | Public                       |
+| `/register`              | New user registration                     | Public                       |
+| `/dashboard`             | User dashboard with transaction summary   | Authenticated Users          |
+| `/transactions`          | Transaction management interface          | Authenticated Users          |
+| `/profile`               | User profile management                   | Authenticated Users          |
+| `/h2-console`            | H2 Database console (dev environment)     | Dev mode only                |
+
+---
+
+## 🛠 Technologies Used
+
+- **Java 21 (JDK 21)**
 - **Spring Boot 3.5.5**
 - **Spring Data JPA**
-- **MySQL Database**
+- **MySQL**
 - **Maven**
 - **Lombok**
 - **SLF4J Logging**
-- **JUnit 5**
-- **Mockito**
-- **JaCoCo** (Code Coverage)
+- **JUnit 5 & Mockito**
+- **JaCoCo** (coverage)
 
-## 📦 Project Structure
+## 🖥️ Frontend Development
+
+### Technologies
+- **React**: For building the interactive UI components
+- **TypeScript**: For type-safe JavaScript development
+- **Bootstrap**: For responsive design and UI components
+- **Redux**: For state management across components
+- **Axios**: For API requests to the backend
+
+### Frontend Structure
+
+## 🏗 Project Structure
+
 ```
 finance-tracker/
 ├── pom.xml
@@ -44,81 +78,136 @@ finance-tracker/
 │   ├── main/
 │   │   ├── java/com/rayyan/finance_tracker/
 │   │   │   ├── FinanceTrackerApplication.java
-│   │   │   ├── entity/Transaction.java
-│   │   │   ├── repository/TransactionRepository.java
-│   │   │   ├── service/TransactionService.java
-│   │   │   ├── controller/TransactionController.java
+│   │   │   ├── entity/
+│   │   │   ├── repository/
+│   │   │   ├── service/
+│   │   │   ├── controller/
+│   │   │   ├── config/
 │   │   │   └── exceptions/
-│   │   │       ├── ValidationException.java
-│   │   │       ├── TransactionNotFoundException.java
-│   │   │       └── GlobalExceptionHandler.java
-│   │   └── resources/application.properties
+│   │   └── resources/
+│   │       └── application.properties
 │   └── test/
-│       └── java/com/rayyan/finance_tracker/service/TransactionServicesTest.java
+│       └── java/com/rayyan/finance_tracker/
 └── target/site/jacoco/index.html
 ```
+
+---
 
 ## 🚀 Getting Started
 
 ### Prerequisites
 
-- **Java 17** or higher
-- **MySQL 5.7** or higher
-- **Maven 3.6** or higher
+#### Development Environment
+- **Java Development Kit (JDK)**: Version 21 or later
+- **Maven**: Version 3.6+ for dependency management and build automation
+- **IDE**: IntelliJ IDEA, Eclipse, VS Code with Spring extensions (recommended)
+- **Git**: For version control and repository management
+
+#### Database Requirements
+- **Production**: MySQL 5.7+ or 8.0+ recommended
+- **Testing**: H2 Database (included in dependencies, no separate installation needed)
+- **Database Client**: MySQL Workbench, DBeaver, or similar tool (optional, for database management)
+
+#### Security Configuration
+- **JWT Secret Key**: A secure random string for signing JWT tokens
+- **HTTPS**: SSL certificate for production deployment (recommended)
+
+#### Optional Tools
+- **Postman** or similar API testing tool for endpoint testing
+- **Docker**: Version 20+ (if using containerization)
+- **Browser Extensions**: JSON formatter for testing API responses in browser
 
 ### Installation & Setup
 
-1.  **Clone the repository and navigate into it:**
-    ```
-    git clone https://github.com/MoRayyan107/Finance-Tracker.git
-    cd Finance-Tracker
-    ```
+1. Clone the repo:
+   ```bash
+   git clone https://github.com/MoRayyan107/Finance-Tracker.git
+   cd Finance-Tracker
+   ```
 
-2.  **Create the MySQL database:**
-    ```sql
-    CREATE DATABASE finance_tracker_db;
-    ```
+2. Configure `src/main/resources/application.properties`:
+   ```properties
+   !!NOTE: THIS WONT BE NECESSARY ONCE THE DB IS LAUNCED IN DOCKER
 
-3.  **Configure your database connection** in `src/main/resources/application.properties`:
-    ```properties
-    spring.datasource.url=jdbc:mysql://localhost:3306/finance_tracker_db
-    spring.datasource.username=your_mysql_username
-    spring.datasource.password=your_mysql_password
-    # ... other properties
-    ```
+   spring.datasource.url=jdbc:mysql://localhost:3306/finance_tracker_db?createIfNotExist=true
+   spring.datasource.username=your_mysql_user
+   spring.datasource.password=your_mysql_password
+   spring.jpa.hibernate.ddl-auto=update
+   ```
 
-4.  **Run the application:**
-    ```bash
-    mvn spring-boot:run
-    ```
-    The API will be available at `http://localhost:8080`.
+3. Create a `Secret file`:
+   ```properties
+   # JWT Secret Key - Keep this secure and do not commit to version control!
+   application.security.jwt.prod.secret-key=your_secret_key_here
+   ```
+   This is done to prevent any sensitive information leaks 
 
-### Running Tests & Viewing Coverage
+3. Run the application:
+   ```bash
+   .\mvnw spring-boot:run
+   ```
+   → API runs on `http://localhost:8080`
 
-1.  **Run the test suite and generate coverage report:**
-    ```bash
-    .\mvnw clean test
-    ```
+---
 
-2.  **Open the coverage report:**
-    ```bash
-    # Open the HTML report in your browser
-    open target/site/jacoco/index.html # On macOS
-    # or
-    xdg-open target/site/jacoco/index.html # On Linux
-    # On Windows, navigate to the folder and open index.html
-    ```
+## 🧪 Tests & Coverage
+
+1. Run tests / generate coverage:
+   ```bash
+   .\mvnw clean test
+   ```
+
+2. View coverage:
+   ```bash
+   # macOS
+   open target/site/jacoco/index.html
+
+   # Linux
+   xdg-open target/site/jacoco/index.html
+
+   # Windows
+   # Open target/site/jacoco/index.html manually
+   ```
+
+---
 
 ## 🔮 Future Enhancements
 
-- [ ] **User Authentication & Authorization** with Spring Security & JWT
-- [ ] **Advanced Financial Features** (Budgeting, Reports, Analytics)
-- [ ] **API Documentation** with OpenAPI (Swagger)
-- [ ] **Docker Containerization** for easy deployment
-- [ ] **Frontend Application** (React/Angular) to consume the API
+- [ ] **Enhanced Financial Features**
+  - Budget planning and tracking
+  - Expense categorization and tagging
+  - Financial reports and analytics
+  - Recurring transaction support
+
+- [ ] **Advanced Security**
+  - Role‑based authorization (USER vs ADMIN)
+  - Two-factor authentication
+  - OAuth integration (Google, GitHub)
+
+- [ ] **Developer Experience**
+  - API documentation with Swagger / OpenAPI
+  - Comprehensive integration testing
+  - CI/CD pipeline setup
+
+- [ ] **Deployment**
+  - Docker containerization
+  - Kubernetes orchestration
+  - Cloud deployment (AWS, Azure, GCP)
+
+- [ ] **Frontend Extensions**
+  - Mobile app version (React Native)
+  - Offline support with local storage
+  - Export functionality (CSV, PDF)
+  - Data visualization enhancements
+
+---
+
+## 📌 Repository
+
+GitHub: https://github.com/MoRayyan107/Finance-Tracker/tree/master
+
+---
 
 ## 📝 License
 
-This project is licensed for educational and personal use.
-
-
+This project is for educational / personal use.

@@ -4,6 +4,7 @@ import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertNotNull;
 import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.Mockito.never;
 import static org.mockito.Mockito.times;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.verifyNoInteractions;
@@ -25,6 +26,7 @@ import com.rayyan.finance_tracker.entity.User;
 import com.rayyan.finance_tracker.entity.authentication.AuthenticationRequest;
 import com.rayyan.finance_tracker.entity.authentication.AuthenticationResponse;
 import com.rayyan.finance_tracker.entity.authentication.RegisterRequest;
+import com.rayyan.finance_tracker.exceptions.DuplicateCredentialsException;
 import com.rayyan.finance_tracker.exceptions.ValidationException;
 import com.rayyan.finance_tracker.repository.UserRepository;
 import com.rayyan.finance_tracker.service.authentication.AuthenticationService;
@@ -80,6 +82,7 @@ public class AuthenticationServiceTest {
     user = User.builder()
         .username(VALID_USERNAME)
         .password(TEST_ENCODED_PASSWORD)
+        .email(VALID_EMAIL)
         .role(User.Role.USER)
         .build();
   }
@@ -159,9 +162,41 @@ public class AuthenticationServiceTest {
    * *********************
    */
   @Test
-  void test_Register_DuplicateCredentials_Throws_ValidationException() {
+  void test_Register_DuplicateCredentials_Username_Throws_ValidationException() {
     // Given
+    when(userRepository.findByUsername(VALID_USERNAME)).thenReturn(Optional.of(user));
 
+    // assert
+    assertThrows(DuplicateCredentialsException.class, () -> authService.register(validRegisterRequest),
+          "Expected to Throw a DuplicateCredentalsException if any Duplicate Username found");
+
+    // verify
+    verify(userRepository, times(1)).findByUsername(VALID_USERNAME);
+    verify(passwordEncoder, times(1)).encode(VALID_PASSWORD);
+    verify(userRepository, never()).save(any(User.class));
+    verifyNoInteractions(jwtService);
+
+    // pass the test
+    test_Passes.put(19, "Register: Duplicate Credentials (Username) Throws Exception");
+  }
+
+  @Test
+  void test_Register_DuplicateCredentials_Email_Throws_ValidationException() {
+    // Given
+    when(userRepository.findByEmail(VALID_EMAIL)).thenReturn(Optional.of(user));
+
+    // assert
+    assertThrows(DuplicateCredentialsException.class, () -> authService.register(validRegisterRequest),
+        "Expected to Throw a DuplicateCredentalsException if any Duplicate email found");
+
+    // verify
+    verify(userRepository, times(1)).findByEmail(VALID_EMAIL);
+    verify(passwordEncoder, times(1)).encode(VALID_PASSWORD);
+    verify(userRepository, never()).save(any(User.class));
+    verifyNoInteractions(jwtService);
+    
+    // pass the test
+    test_Passes.put(20,"Register: Duplicate Credentials (Email) Throws Exception");
   }
 
   /* ********************* Username and Password is Short ********************* */
@@ -489,7 +524,7 @@ public class AuthenticationServiceTest {
   @AfterAll
   static void afterAll() {
     int maxLength = 0;
-    int totalTests = 18;
+    int totalTests = 20;
     int passedTests = test_Passes.size();
 
     // Separate tests into Register and Authenticate groups
