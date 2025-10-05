@@ -404,7 +404,7 @@ public class TransactionServicesTest {
     int maxLength = 0;
     // We create a temporary list to hold just the test names
     List<String> testNames = new ArrayList<>();
-    int totalTests = 14; // each Register and Authenticate has 7 tests
+    int totalTests = 17; // each @Test method is one test
     int passedTests = 0;
 
     for (String result : test_Passes.values()) {

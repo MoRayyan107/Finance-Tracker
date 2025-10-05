@@ -9,7 +9,6 @@ import com.rayyan.finance_tracker.repository.UserRepository;
 import com.rayyan.finance_tracker.service.jwt.JwtService;
 import com.rayyan.finance_tracker.utils.ValidatingUtil;
 import lombok.RequiredArgsConstructor;
-import lombok.val;
 
 import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
