@@ -19,6 +19,20 @@ public class ValidatingUtil {
     }
 
     /**
+     * This method checks if the email is in a valid format
+     * 
+     * @param email the email to be validated
+     * @param fieldName Which field is it checking, Email
+     * @param errors an Empty OR non-empty list of exceptions stored for the given request
+     */
+    public static void checkEmailFormat(String email, String fieldName, List<String> errors){
+        String emailRegex = "^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\\.[a-zA-Z]{2,}$";
+        if (!email.matches(emailRegex)) {
+            errors.add(fieldName + " is not in a valid format");
+        }
+    }
+
+    /**
      * This method checks the minimum length of the username and password
      *
      * @param Value the RegisterRequest/AuthenticationRequest Request (Username OR Password)
