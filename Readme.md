@@ -34,15 +34,12 @@ Track income and expenses with full CRUD operations, validation, JWT‑based sec
 
 ### 🌐 HTML Endpoints
 
-| Path                     | Description                               | Access                      |
-|--------------------------|-------------------------------------------|------------------------------|
-| `/`                      | Home page with application overview       | Public                       |
-| `/login`                 | User login page                           | Public                       |
-| `/register`              | New user registration                     | Public                       |
-| `/dashboard`             | User dashboard with transaction summary   | Authenticated Users          |
-| `/transactions`          | Transaction management interface          | Authenticated Users          |
-| `/profile`               | User profile management                   | Authenticated Users          |
-| `/h2-console`            | H2 Database console (dev environment)     | Dev mode only                |
+| Path                     | Description                               | Access                      | Status
+|--------------------------|-------------------------------------------|------------------------------|------------------------------|
+| `/`                      | Home page with application overview       | Public                       | ❌ Not Implemented          |
+| `/login`                 | User login page                           | Public                       | ✅ Implemented              |
+| `/register`              | New user registration                     | Public                       | ✅ Implemented              |
+| `/dashboard`             | User dashboard with transaction summary   | Authenticated Users          | ❌ Not Implemented          |
 
 ---
 
