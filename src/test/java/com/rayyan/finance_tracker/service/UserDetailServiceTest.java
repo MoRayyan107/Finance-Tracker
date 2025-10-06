@@ -18,8 +18,7 @@ import com.rayyan.finance_tracker.entity.User;
 import java.util.Optional;
 import java.util.HashMap;
 import java.util.Map;
-import java.util.List;
-import java.util.ArrayList;
+import java.util.TreeMap;
 
 import static com.rayyan.finance_tracker.TestConstants.EXISTING_USERNAME;
 import static com.rayyan.finance_tracker.TestConstants.NON_EXISTING_USERNAME;
@@ -34,15 +33,15 @@ import static org.mockito.Mockito.times;
 @ExtendWith(MockitoExtension.class)
 public class UserDetailServiceTest {
 
-  @Mock 
+  @Mock
   private UserRepository userRepository;
 
   @InjectMocks
   private UserDetailService userDetailService;
 
-  private User testUser; // user object to test with 
+  private User testUser; // user object to test with
 
-  private static final Map<Integer,String> test_Passes = new HashMap<>();
+  private static final Map<Integer, String> test_Passes = new HashMap<>();
 
   @BeforeAll
   static void beforeAll() {
@@ -50,14 +49,14 @@ public class UserDetailServiceTest {
   }
 
   @BeforeEach
-  void setup(){
+  void setup() {
     // create a valid test user
     testUser = User.builder()
-          .id(1L)
-          .username(EXISTING_USERNAME)
-          .password("testPassword@123")
-          .role(Role.USER)
-          .build();
+        .id(1L)
+        .username(EXISTING_USERNAME)
+        .password("testPassword@123")
+        .role(Role.USER)
+        .build();
   }
 
   /* ************** LoadByUser Test cases ************* */
@@ -66,25 +65,25 @@ public class UserDetailServiceTest {
   void test_LoadByUsername_Existing_Username_Success() {
     // Arrange
     when(userRepository.findByUsername(EXISTING_USERNAME))
-       .thenReturn(Optional.of(testUser)); 
+        .thenReturn(Optional.of(testUser));
 
     // Act
     UserDetails userDetails = userDetailService.loadUserByUsername(EXISTING_USERNAME);
 
     // verify
     assertNotNull(userDetails);
-    assertEquals(EXISTING_USERNAME,userDetails.getUsername());
+    assertEquals(EXISTING_USERNAME, userDetails.getUsername());
     verify(userRepository, times(1)).findByUsername(EXISTING_USERNAME);
 
     // record the test as passed
-    test_Passes.put(1,"Test 1 (test_LoadByUsername_Existing_Username_Success): PASS");
+    test_Passes.put(1, "LoadByUsername: Existing Username Success");
   }
 
   @Test
-  void test_LoadByUsername_Non_Existing_Username_ThrowsEception(){
+  void test_LoadByUsername_Non_Existing_Username_ThrowsEception() {
     // Arrange
     when(userRepository.findByUsername(NON_EXISTING_USERNAME))
-        .thenThrow(new UsernameNotFoundException("Username Not Found: "+NON_EXISTING_USERNAME));
+        .thenThrow(new UsernameNotFoundException("Username Not Found: " + NON_EXISTING_USERNAME));
 
     // Act & Assert
     assertThrows(UsernameNotFoundException.class, () -> {
@@ -94,15 +93,15 @@ public class UserDetailServiceTest {
     verify(userRepository, times(1)).findByUsername(NON_EXISTING_USERNAME);
 
     // record the test as passed
-    test_Passes.put(2,"Test 2 (test_LoadByUsername_Non_Existing_Username_ThrowsEception): PASS");
+    test_Passes.put(2, "LoadByUsername: Non-Existing Username Throws Exception");
   }
 
   /* ************** getUserByUsername Test cases ************* */
   @Test
-  void test_GetByUsername_Existing_Username_Success(){
-    // Arrange 
+  void test_GetByUsername_Existing_Username_Success() {
+    // Arrange
     when(userRepository.findByUsername(EXISTING_USERNAME))
-       .thenReturn(Optional.of(testUser));
+        .thenReturn(Optional.of(testUser));
 
     // Act
     User resultUser = userDetailService.getUserByUsername(EXISTING_USERNAME);
@@ -113,14 +112,14 @@ public class UserDetailServiceTest {
     verify(userRepository, times(1)).findByUsername(EXISTING_USERNAME);
 
     // record the test as passed
-    test_Passes.put(3,"Test 3 (test_GetByUsername_Existing_Username_Success): PASS");
+    test_Passes.put(3, "GetUserByUsername: Existing Username Success");
   }
 
   @Test
-  void test_GetUserByUsername_Non_Existing_Username_ThrowsError(){
-    // Arrange 
+  void test_GetUserByUsername_Non_Existing_Username_ThrowsError() {
+    // Arrange
     when(userRepository.findByUsername(NON_EXISTING_USERNAME))
-        .thenThrow(new UsernameNotFoundException("Username Not Found: "+NON_EXISTING_USERNAME));
+        .thenThrow(new UsernameNotFoundException("Username Not Found: " + NON_EXISTING_USERNAME));
 
     // Act & Assert
     assertThrows(UsernameNotFoundException.class, () -> {
@@ -130,41 +129,53 @@ public class UserDetailServiceTest {
     verify(userRepository, times(1)).findByUsername(NON_EXISTING_USERNAME);
 
     // record the test as passed
-    test_Passes.put(4,"Test 4 (test_GetUserByUsername_Non_Existing_Username_ThrowsError): PASS");
+    test_Passes.put(4, "GetUserByUsername: Non-Existing Username Throws Exception");
   }
 
   /* Printing Test Case Passes */
   @AfterAll
   static void afterAll() {
     int maxLength = 0;
-    // We create a temporary list to hold just the test names
-    List<String> testNames = new ArrayList<>();
-    int totalTests = 4; // each loadByUsername and getUserByUsername has 2 tests
-    int passedTests = 0;
+    int totalTests = 4;
+    int passedTests = test_Passes.size();
 
-    for (String result : test_Passes.values()) {
-      // Remove the ": Pass" part to get the actual test name
-      String testName = result.replace(": PASS", "");
-      testNames.add(testName);
+    // Separate tests into LoadByUsername and GetUserByUsername groups
+    Map<Integer, String> loadByUsernameTests = new TreeMap<>();
+    Map<Integer, String> getUserByUsernameTests = new TreeMap<>();
+
+    for (Map.Entry<Integer, String> entry : test_Passes.entrySet()) {
+      String testName = entry.getValue();
+      if (testName.startsWith("LoadByUsername:")) {
+        loadByUsernameTests.put(entry.getKey(), testName);
+      } else if (testName.startsWith("GetUserByUsername:")) {
+        getUserByUsernameTests.put(entry.getKey(), testName);
+      }
 
       // Find the longest name
       if (testName.length() > maxLength) {
         maxLength = testName.length();
       }
-      passedTests++;
     }
 
-    // --- Step 2: Create a dynamic format string ---
-    // This creates a format like "%-50s %s%n", where 50 is the max length
-    // The "%-" means left-justify and pad with spaces.
-    String format = "%-" + (maxLength) + "s    -> %s%n";
+    // Create format string
+    String format = "Test %-2d: %-" + maxLength + "s -> %s%n";
 
-    // --- Step 3: Print the results using the new format ---
+    // Print results
     System.out.println("\n--- UserDetailService Test Results ---");
-    for (String name : testNames) {
-      System.out.printf(format, name, "Pass");
+
+    // Print LoadByUsername tests
+    System.out.println("\n=== LOAD BY USERNAME TESTS ===");
+    for (Map.Entry<Integer, String> entry : loadByUsernameTests.entrySet()) {
+      System.out.printf(format, entry.getKey(), entry.getValue(), "PASS");
     }
-    System.out.println("---------------------------------");
+
+    // Print GetUserByUsername tests
+    System.out.println("\n=== GET USER BY USERNAME TESTS ===");
+    for (Map.Entry<Integer, String> entry : getUserByUsernameTests.entrySet()) {
+      System.out.printf(format, entry.getKey(), entry.getValue(), "PASS");
+    }
+
+    System.out.println("\n---------------------------------");
 
     if (passedTests == totalTests)
       System.out.println("SUMMARY: All " + passedTests + "/" + totalTests + " tests passed!");

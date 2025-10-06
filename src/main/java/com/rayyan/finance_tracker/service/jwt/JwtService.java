@@ -1,6 +1,7 @@
 package com.rayyan.finance_tracker.service.jwt;
 
 import io.jsonwebtoken.Claims;
+import io.jsonwebtoken.ExpiredJwtException;
 import io.jsonwebtoken.Jwts;
 import io.jsonwebtoken.SignatureAlgorithm;
 import io.jsonwebtoken.io.Decoders;
@@ -10,6 +11,7 @@ import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.stereotype.Service;
 
 import java.security.Key;
+import java.security.SignatureException;
 import java.util.Date;
 import java.util.HashMap;
 import java.util.Map;
@@ -24,7 +26,7 @@ public class JwtService {
 
     // injects the secret key stored in the application
     // best practice to store in a separate file than a hardcoded version
-    @Value("${application.security.jwt.secret-key}")
+    @Value("${application.security.jwt.prod.secret-key}")
     private String SECRET_KEY;
 
     /**
@@ -79,8 +81,12 @@ public class JwtService {
      * @return a boolean value if its valid token
      */
     public boolean isTokenValid(String jwtToken, UserDetails userDetails){
-        final String usename = extractUsername(jwtToken);
-        return usename.equals(userDetails.getUsername()) && !isTokenExpired(jwtToken);
+        try {
+            final String usename = extractUsername(jwtToken);
+            return usename.equals(userDetails.getUsername()) && !isTokenExpired(jwtToken);
+        } catch (ExpiredJwtException e) {
+            return false;
+        }
     }
 
     /**

@@ -1,10 +1,10 @@
 package com.rayyan.finance_tracker.service;
 
-
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertNotNull;
 import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.Mockito.never;
 import static org.mockito.Mockito.times;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.verifyNoInteractions;
@@ -26,6 +26,7 @@ import com.rayyan.finance_tracker.entity.User;
 import com.rayyan.finance_tracker.entity.authentication.AuthenticationRequest;
 import com.rayyan.finance_tracker.entity.authentication.AuthenticationResponse;
 import com.rayyan.finance_tracker.entity.authentication.RegisterRequest;
+import com.rayyan.finance_tracker.exceptions.DuplicateCredentialsException;
 import com.rayyan.finance_tracker.exceptions.ValidationException;
 import com.rayyan.finance_tracker.repository.UserRepository;
 import com.rayyan.finance_tracker.service.authentication.AuthenticationService;
@@ -34,9 +35,8 @@ import com.rayyan.finance_tracker.service.jwt.JwtService;
 import static com.rayyan.finance_tracker.TestConstants.*;
 import java.util.Map;
 import java.util.Optional;
-import java.util.ArrayList;
+import java.util.TreeMap;
 import java.util.HashMap;
-import java.util.List;
 
 @ExtendWith(MockitoExtension.class)
 public class AuthenticationServiceTest {
@@ -51,7 +51,7 @@ public class AuthenticationServiceTest {
 
   @Mock
   private AuthenticationManager authenticationManager;
-  
+
   @InjectMocks
   private AuthenticationService authService;
 
@@ -59,7 +59,7 @@ public class AuthenticationServiceTest {
   private AuthenticationRequest validAuthenticationRequest;
   private User user;
 
-  private static final Map<Integer,String> test_Passes = new HashMap<>();
+  private static final Map<Integer, String> test_Passes = new HashMap<>();
 
   @BeforeAll
   static void beforeAll() {
@@ -69,31 +69,33 @@ public class AuthenticationServiceTest {
   @BeforeEach
   void setUp() {
     validRegisterRequest = RegisterRequest.builder()
-       .username(VALID_USERNAME)
-       .password(VALID_PASSWORD)
-       .build();
-
-    validAuthenticationRequest = AuthenticationRequest.builder()
         .username(VALID_USERNAME)
         .password(VALID_PASSWORD)
+        .email(VALID_EMAIL)
         .build();
-    
+
+    validAuthenticationRequest = AuthenticationRequest.builder()
+        .username(VALID_USERNAME) // Email can be used
+        .password(VALID_PASSWORD)
+        .build();
+
     user = User.builder()
-       .username(VALID_USERNAME)
-       .password(TEST_ENCODED_PASSWORD)
-       .role(User.Role.USER)
-       .build();
+        .username(VALID_USERNAME)
+        .password(TEST_ENCODED_PASSWORD)
+        .email(VALID_EMAIL)
+        .role(User.Role.USER)
+        .build();
   }
 
   /* ********************* Valid Username and Password ********************* */
   @Test
-  void test_Register_ValidCredentials_Success(){
-    // mockito when-then
+  void test_Register_ValidCredentials_Success() {
+    // When
     when(passwordEncoder.encode(VALID_PASSWORD)).thenReturn(TEST_ENCODED_PASSWORD);
     when(userRepository.save(any(User.class))).thenReturn(user);
     when(jwtService.generateToken(any(User.class))).thenReturn(DUMMY_JWT_TOKEN);
 
-    //Given 
+    // Given
     AuthenticationResponse response = authService.register(validRegisterRequest);
 
     // assert
@@ -104,7 +106,7 @@ public class AuthenticationServiceTest {
     verify(passwordEncoder, times(1)).encode(VALID_PASSWORD);
 
     // using an ArgumentCaptor to capture the user object passed to save method
-    // ArgumentCaptor is a special Mockito class 
+    // ArgumentCaptor is a special Mockito class
     // that allows us to capture arguments passed to mocked methods
     ArgumentCaptor<User> userCaptor = ArgumentCaptor.forClass(User.class);
     verify(userRepository, times(1)).save(userCaptor.capture());
@@ -114,6 +116,7 @@ public class AuthenticationServiceTest {
 
     // verify the captured user details
     assertEquals(VALID_USERNAME, capturedUser.getUsername(), "Username should match the input username");
+    assertEquals(VALID_EMAIL, capturedUser.getEmail(), "Email should match the input username");
     assertEquals(TEST_ENCODED_PASSWORD, capturedUser.getPassword(), "Password should be encoded");
     assertEquals(User.Role.USER, capturedUser.getRole(), "Role should be USER");
 
@@ -121,19 +124,16 @@ public class AuthenticationServiceTest {
     verify(jwtService, times(1)).generateToken(capturedUser);
 
     // test passes
-    test_Passes.put(1, "Test 1: (test_Register_ValidCredentials_Success): PASS");
+    test_Passes.put(1, "Register: Valid Credentials");
   }
 
   @Test
-  void test_Authenticate_ValidCredentials_Success(){
-    //Given
+  void test_Authenticate_ValidCredentials_Success() {
+    // Given
     when(userRepository.findByUsername(VALID_USERNAME)).thenReturn(Optional.of(user));
     when(jwtService.generateToken(any(User.class))).thenReturn(DUMMY_JWT_SECRET_KEY);
 
-    // mock the authenticationManager to do nothing (since it returns void)
-    // this is to simulate a successful authentication
-    // if authentication fails, it would throw an exception
-    // so we don't need to do anything special here for a successful case
+    // Stimulates a successfull login
     when(authenticationManager.authenticate(any())).thenReturn(null);
 
     // When
@@ -149,12 +149,54 @@ public class AuthenticationServiceTest {
     verify(jwtService, times(1)).generateToken(user);
 
     // NO passwordEncoding during Authentication
-    verifyNoInteractions(passwordEncoder); 
+    verifyNoInteractions(passwordEncoder);
     // and NO saving during authentication
     verify(userRepository, times(0)).save(any());
 
     // test passes
-    test_Passes.put(2, "Test 2: (test_Authenticate_ValidCredentials_Success): PASS");
+    test_Passes.put(2, "Authenticate: Valid Credentials");
+  }
+
+  /*
+   * ********************* Check Duplicate during Authentication
+   * *********************
+   */
+  @Test
+  void test_Register_DuplicateCredentials_Username_Throws_ValidationException() {
+    // Given
+    when(userRepository.findByUsername(VALID_USERNAME)).thenReturn(Optional.of(user));
+
+    // assert
+    assertThrows(DuplicateCredentialsException.class, () -> authService.register(validRegisterRequest),
+          "Expected to Throw a DuplicateCredentalsException if any Duplicate Username found");
+
+    // verify
+    verify(userRepository, times(1)).findByUsername(VALID_USERNAME);
+    verify(passwordEncoder, times(1)).encode(VALID_PASSWORD);
+    verify(userRepository, never()).save(any(User.class));
+    verifyNoInteractions(jwtService);
+
+    // pass the test
+    test_Passes.put(19, "Register: Duplicate Credentials (Username) Throws Exception");
+  }
+
+  @Test
+  void test_Register_DuplicateCredentials_Email_Throws_ValidationException() {
+    // Given
+    when(userRepository.findByEmail(VALID_EMAIL)).thenReturn(Optional.of(user));
+
+    // assert
+    assertThrows(DuplicateCredentialsException.class, () -> authService.register(validRegisterRequest),
+        "Expected to Throw a DuplicateCredentalsException if any Duplicate email found");
+
+    // verify
+    verify(userRepository, times(1)).findByEmail(VALID_EMAIL);
+    verify(passwordEncoder, times(1)).encode(VALID_PASSWORD);
+    verify(userRepository, never()).save(any(User.class));
+    verifyNoInteractions(jwtService);
+    
+    // pass the test
+    test_Passes.put(20,"Register: Duplicate Credentials (Email) Throws Exception");
   }
 
   /* ********************* Username and Password is Short ********************* */
@@ -164,17 +206,18 @@ public class AuthenticationServiceTest {
     RegisterRequest request = RegisterRequest.builder()
         .username(SHORT_USERNAME) // less than 4 characters
         .password(VALID_PASSWORD)
+        .email(VALID_EMAIL)
         .build();
 
     // assert
     assertThrows(ValidationException.class, () -> authService.register(request),
-        "Expected to Throw ValidationException for Username Length "+MIN_USERNAME_LENGTH+" characters");
+        "Expected to Throw ValidationException for Username Length " + MIN_USERNAME_LENGTH + " characters");
 
     // VERIFY
     verifyNoInteractions(userRepository, passwordEncoder, jwtService);
-    
+
     // test passes
-    test_Passes.put(3, "Test 3: (test_Register_ShortUsername_Throws_ValidationException): PASS");
+    test_Passes.put(3, "Register: Short Username Throws Validation Exception");
   }
 
   @Test
@@ -183,18 +226,37 @@ public class AuthenticationServiceTest {
     RegisterRequest request = RegisterRequest.builder()
         .username(VALID_USERNAME)
         .password(SHORT_PASSWORD) // less than 8 characters
+        .email(VALID_EMAIL)
         .build();
 
     // assert
-    assertThrows(ValidationException.class, () -> authService.register(request)
-        ,"Expected to Throw ValidationException for Password Length "+MIN_PASSWORD_LENGTH+" characters"
-    );
+    assertThrows(ValidationException.class, () -> authService.register(request),
+        "Expected to Throw ValidationException for Password Length " + MIN_PASSWORD_LENGTH + " characters");
 
     // verify
     verifyNoInteractions(userRepository, passwordEncoder, jwtService);
 
     // test passes
-    test_Passes.put(4, "Test 4: (test_Register_ShortPassword_Throws_ValidationException): PASS");
+    test_Passes.put(4, "Register: Short Password Throws Validation Exception");
+  }
+
+  @Test
+  void test_Register_ShortEmail_Throws_ValidationException() {
+    RegisterRequest invalidRequest = RegisterRequest.builder()
+        .username(VALID_USERNAME)
+        .password(VALID_PASSWORD)
+        .email(SHORT_EMAIL) // Email less than 5 characters
+        .build();
+
+    // assert
+    assertThrows(ValidationException.class, () -> authService.register(invalidRequest),
+        "Should Throw ValidationException for Invalid Email with length less than " + MIN_EMAIL_LENGTH);
+
+    // verify
+    verifyNoInteractions(userRepository, passwordEncoder, jwtService);
+
+    // pass the test
+    test_Passes.put(5, "Register: Short Email Throws Validation Exception");
   }
 
   @Test
@@ -207,34 +269,53 @@ public class AuthenticationServiceTest {
 
     // assert
     assertThrows(ValidationException.class, () -> authService.authenticate(request),
-        "Expected to Throw ValidationException for Username Length "+MIN_USERNAME_LENGTH+" characters");
+        "Expected to Throw ValidationException for Username Length " + MIN_USERNAME_LENGTH + " characters");
 
     // VERIFY
     verifyNoInteractions(userRepository, passwordEncoder, jwtService);
-    
+
     // test passes
-    test_Passes.put(5, "Test 5: (test_login_ShortUsername_Throws_ValidationException): PASS");
+    test_Passes.put(6, "Authenticate: Short Username Throws Validation Exception");
   }
 
   @Test
-  void test_Authenticate_ShortPassword_Throws_ValidationException(){
-    // Given 
+  void test_Authenticate_ShortPassword_Throws_ValidationException() {
+    // Given
     AuthenticationRequest request = AuthenticationRequest.builder()
         .username(VALID_USERNAME)
         .password(SHORT_PASSWORD) // less than 8 characters
         .build();
-        
-    // assert 
+
+    // assert
     assertThrows(ValidationException.class, () -> authService.authenticate(request),
-        "Expected to Throw ValidationException for Password Length "+MIN_PASSWORD_LENGTH+" characters");
+        "Expected to Throw ValidationException for Password Length " + MIN_PASSWORD_LENGTH + " characters");
 
     // verify
     verifyNoInteractions(userRepository, passwordEncoder, jwtService);
 
     // test passes
-    test_Passes.put(6, "Test 6: (test_Authenticate_ShortPassword_Throws_ValidationException): PASS");
+    test_Passes.put(7, "Authenticate: Short Password Throws Validation Exception");
   }
-  
+
+  @Test
+  void test_Authenticate_ShortEmail_Throws_ValidationException() {
+    // Given
+    AuthenticationRequest request = AuthenticationRequest.builder()
+        .username(SHORT_EMAIL)
+        .password(VALID_PASSWORD)
+        .build();
+
+    // assert
+    assertThrows(ValidationException.class, () -> authService.authenticate(request),
+        "Expected to throw ValidationException for Email Length " + MIN_EMAIL_LENGTH);
+
+    // verify
+    verifyNoInteractions(passwordEncoder, userRepository, jwtService);
+
+    // pass the test
+    test_Passes.put(8, "Authenticate: Short Email Throws Validation Exception");
+  }
+
   /* ********************* Username and Password is Long ********************* */
   @Test
   void test_Register_LongUsername_Throws_ValidationException() {
@@ -242,36 +323,58 @@ public class AuthenticationServiceTest {
     RegisterRequest request = RegisterRequest.builder()
         .username(LONG_USERNAME) // more than 20 characters
         .password(VALID_PASSWORD)
+        .email(VALID_EMAIL)
         .build();
 
     // assert
     assertThrows(ValidationException.class, () -> authService.register(request),
-        "Expected to Throw ValidationException for Username Length "+MAX_USERNAME_LENGTH+" characters");
+        "Expected to Throw ValidationException for Username Length " + MAX_USERNAME_LENGTH + " characters");
 
     // VERIFY
     verifyNoInteractions(userRepository, passwordEncoder, jwtService);
-    
+
     // test passes
-    test_Passes.put(7, "Test 7: (test_Register_LongUsername_Throws_ValidationException): PASS");
+    test_Passes.put(9, "Register: Long Username Throws Validation Exception");
   }
 
   @Test
-  void test_Register_LongPassword_Throws_ValidationException(){
+  void test_Register_LongPassword_Throws_ValidationException() {
     // Given
     RegisterRequest request = RegisterRequest.builder()
         .username(VALID_USERNAME)
         .password(LONG_PASSWORD) // more than 50 characters
+        .email(VALID_EMAIL)
         .build();
 
     // assert
     assertThrows(ValidationException.class, () -> authService.register(request),
-        "Expected to Throw ValidationException for Password Length "+MAX_PASSWORD_LENGTH+" characters");
+        "Expected to Throw ValidationException for Password Length " + MAX_PASSWORD_LENGTH + " characters");
 
     // verify
     verifyNoInteractions(userRepository, passwordEncoder, jwtService);
 
     // pass test
-    test_Passes.put(8, "Test 8: (test_Register_LongPassword_Throws_ValidationException): PASS");
+    test_Passes.put(10, "Register: Long Password Throws Validation Exception");
+  }
+
+  @Test
+  void test_Register_LongEmail_Throws_ValidationException() {
+    // Given
+    RegisterRequest request = RegisterRequest.builder()
+        .username(VALID_USERNAME)
+        .password(VALID_PASSWORD)
+        .email(LONG_EMAIL)
+        .build();
+
+    // assert
+    assertThrows(ValidationException.class, () -> authService.register(request),
+        "Expected to throw ValidationException for Email length " + MAX_EMAIL_LENGTH);
+
+    // verify
+    verifyNoInteractions(passwordEncoder, jwtService, userRepository);
+
+    // pass the test
+    test_Passes.put(11, "Register: Long Email Throws Validation Exception");
   }
 
   @Test
@@ -282,19 +385,19 @@ public class AuthenticationServiceTest {
         .password(VALID_PASSWORD)
         .build();
 
-    // assert 
+    // assert
     assertThrows(ValidationException.class, () -> authService.authenticate(request),
-        "Expected to Throw ValidationException for Username Length "+MAX_USERNAME_LENGTH+" characters");
-    
+        "Expected to Throw ValidationException for Username Length " + MAX_USERNAME_LENGTH + " characters");
+
     // VERIFY
     verifyNoInteractions(passwordEncoder, userRepository, jwtService);
 
     // pass test
-    test_Passes.put(9, "Test 9: (test_Authenticate_LongUsername_Throws_ValidationException): PASS");
+    test_Passes.put(12, "Authenticate: Long Username Throws Validation Exception");
   }
 
   @Test
-  void test_Authenticate_LongPassword_Throws_ValidationException(){
+  void test_Authenticate_LongPassword_Throws_ValidationException() {
     // Given
     AuthenticationRequest request = AuthenticationRequest.builder()
         .username(VALID_USERNAME)
@@ -303,23 +406,45 @@ public class AuthenticationServiceTest {
 
     // assert
     assertThrows(ValidationException.class, () -> authService.authenticate(request),
-        "Expected to Throw ValidationException for Password Length "+MAX_PASSWORD_LENGTH+" characters"
-    );
+        "Expected to Throw ValidationException for Password Length " + MAX_PASSWORD_LENGTH + " characters");
 
     // verify
     verifyNoInteractions(userRepository, passwordEncoder, jwtService);
 
     // pass test
-    test_Passes.put(10, "Test 10: (test_Authenticate_LongPassword_Throws_ValidationException): PASS");
+    test_Passes.put(13, "Authenticate: Long Password Throws Validation Exception");
   }
 
-  /* ********************* Username and Password is Null or Empty ********************* */
+  @Test
+  void test_Authenticate_LongEmail_Throws_ValidationException() {
+    // Given
+    AuthenticationRequest request = AuthenticationRequest.builder()
+        .username(LONG_EMAIL)
+        .password(VALID_PASSWORD)
+        .build();
+
+    // assert
+    assertThrows(ValidationException.class, () -> authService.authenticate(request),
+        "Expected to throw ValidationException for Email Length " + MAX_EMAIL_LENGTH);
+
+    // verify
+    verifyNoInteractions(passwordEncoder, userRepository, jwtService);
+
+    // pass the test
+    test_Passes.put(14, "Authenticate: Long Email Throws Validation Exception");
+  }
+
+  /*
+   * ********************* Username and Password is Null or Empty
+   * *********************
+   */
   @Test
   void test_Register_NullOrEmptyUsername_Throws_ValidationException() {
     // Given
     RegisterRequest request = RegisterRequest.builder()
         .username(NULL_OR_EMPTY_USERNAME) // null or empty username
         .password(VALID_PASSWORD)
+        .email(VALID_EMAIL)
         .build();
 
     // assert
@@ -328,17 +453,18 @@ public class AuthenticationServiceTest {
 
     // VERIFY
     verifyNoInteractions(userRepository, passwordEncoder, jwtService);
-    
+
     // test passes
-    test_Passes.put(11, "Test 11: (test_Register_NullOrEmptyUsername_Throws_ValidationException): PASS");
+    test_Passes.put(15, "Register: Null Or Empty Username Throws Validation Exception");
   }
 
   @Test
-  void test_Register_NullOrEmptyPassword_Throws_ValidationException(){
+  void test_Register_NullOrEmptyPassword_Throws_ValidationException() {
     // Given
     RegisterRequest request = RegisterRequest.builder()
         .username(VALID_USERNAME)
         .password(NULL_OR_EMPTY_PASSWORD) // null or empty password
+        .email(VALID_EMAIL)
         .build();
 
     // assert
@@ -349,7 +475,7 @@ public class AuthenticationServiceTest {
     verifyNoInteractions(userRepository, passwordEncoder, jwtService);
 
     // pass test
-    test_Passes.put(12, "Test 12: (test_Register_NullOrEmptyPassword_Throws_ValidationException): PASS");
+    test_Passes.put(16, "Register: Null Or Empty Password Throws Validation Exception");
   }
 
   @Test
@@ -360,19 +486,19 @@ public class AuthenticationServiceTest {
         .password(VALID_PASSWORD)
         .build();
 
-    // assert 
+    // assert
     assertThrows(ValidationException.class, () -> authService.authenticate(request),
         "Expected to Throw ValidationException for Null or Empty Username");
-    
+
     // VERIFY
     verifyNoInteractions(passwordEncoder, userRepository, jwtService);
 
     // pass test
-    test_Passes.put(13, "Test 13: (test_Authenticate_NullOrEmptyUsername_Throws_ValidationException): PASS");
+    test_Passes.put(17, "Authenticate: Null Or Empty Username Throws Validation Exception");
   }
-  
+
   @Test
-  void test_Authenticate_NullOrEmptyPassword_Throws_ValidationException(){
+  void test_Authenticate_NullOrEmptyPassword_Throws_ValidationException() {
     // Given
     AuthenticationRequest request = AuthenticationRequest.builder()
         .username(VALID_USERNAME)
@@ -381,49 +507,63 @@ public class AuthenticationServiceTest {
 
     // assert
     assertThrows(ValidationException.class, () -> authService.authenticate(request),
-        "Expected to Throw ValidationException for Null or Empty Password"
-    );
+        "Expected to Throw ValidationException for Null or Empty Password");
 
     // verify
     verifyNoInteractions(userRepository, passwordEncoder, jwtService);
 
     // pass test
-    test_Passes.put(14, "Test 14: (test_Authenticate_NullOrEmptyPassword_Throws_ValidationException): PASS");
+    test_Passes.put(18, "Authenticate: Null Or Empty Password Throws Validation Exception");
   }
 
-/****************************************** Main Testing Ends here  ******************************************/
+  /******************************************
+   * Main Testing Ends here
+   ******************************************/
+
   /* Printing Test Case Passes */
   @AfterAll
   static void afterAll() {
     int maxLength = 0;
-    // We create a temporary list to hold just the test names
-    List<String> testNames = new ArrayList<>();
-    int totalTests = 14; // each Register and Authenticate has 7 tests
-    int passedTests = 0;
+    int totalTests = 20;
+    int passedTests = test_Passes.size();
 
-    for (String result : test_Passes.values()) {
-      // Remove the ": Pass" part to get the actual test name
-      String testName = result.replace(": PASS", "");
-      testNames.add(testName);
+    // Separate tests into Register and Authenticate groups
+    Map<Integer, String> registerTests = new TreeMap<>();
+    Map<Integer, String> authenticateTests = new TreeMap<>();
+
+    for (Map.Entry<Integer, String> entry : test_Passes.entrySet()) {
+      String testName = entry.getValue();
+      if (testName.startsWith("Register:")) {
+        registerTests.put(entry.getKey(), testName);
+      } else if (testName.startsWith("Authenticate:")) {
+        authenticateTests.put(entry.getKey(), testName);
+      }
 
       // Find the longest name
       if (testName.length() > maxLength) {
         maxLength = testName.length();
       }
-      passedTests++;
     }
 
-    // --- Step 2: Create a dynamic format string ---
-    // This creates a format like "%-50s %s%n", where 50 is the max length
-    // The "%-" means left-justify and pad with spaces.
-    String format = "%-" + (maxLength) + "s    -> %s%n";
+    // Create format string
+    String format = "Test %-2d: %-" + maxLength + "s -> %s%n";
 
-    // --- Step 3: Print the results using the new format ---
+    // Print results
     System.out.println("\n--- AuthenticationService Test Results ---");
-    for (String name : testNames) {
-      System.out.printf(format, name, "Pass");
+
+    // Print Register tests
+    System.out.println("\n=== REGISTER TESTS ===");
+    for (Map.Entry<Integer, String> entry : registerTests.entrySet()) {
+      System.out.printf(format, entry.getKey(), entry.getValue(), "PASS");
     }
-    System.out.println("---------------------------------");
+
+    // Print Authenticate tests
+    System.out.println("\n=== AUTHENTICATE TESTS ===");
+    for (Map.Entry<Integer, String> entry : authenticateTests.entrySet()) {
+      System.out.printf(format, entry.getKey(), entry.getValue(), "PASS");
+    }
+
+    System.out.println("\n---------------------------------");
 
     if (passedTests == totalTests)
       System.out.println("SUMMARY: All " + passedTests + "/" + totalTests + " tests passed!");
@@ -431,5 +571,4 @@ public class AuthenticationServiceTest {
       System.out.println("SUMMARY: " + passedTests + "/" + totalTests + " tests passed.");
     System.out.println("---------------------------------");
   }
-
 }
