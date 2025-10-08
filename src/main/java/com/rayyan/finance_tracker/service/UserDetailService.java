@@ -12,7 +12,7 @@ import org.springframework.stereotype.Service;
 @RequiredArgsConstructor
 public class UserDetailService implements UserDetailsService {
 
-    private final UserRepository userRepository = null;
+    private final UserRepository userRepository;
 
     /**
      * This method is used in Spring Security during the authentication process
