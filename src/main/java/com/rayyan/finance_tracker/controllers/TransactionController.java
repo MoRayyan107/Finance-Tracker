@@ -21,9 +21,8 @@ public class TransactionController {
     private final TransactionService transactionService;
     private final UserDetailService userDetailService;
 
-    // Helper method to get current authenticated user
     /**
-     * Get the current authenticated user from the security context
+     * Get the current authenticated user from the security context (Helper Method)
      * 
      * @return User object of the currently authenticated user
      */

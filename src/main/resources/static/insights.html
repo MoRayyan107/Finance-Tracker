@@ -4,28 +4,104 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Welcome to Finance Tracker</title>
-    <link rel="stylesheet" href="/static/css/insight.css">
+    <link rel="stylesheet" href="css/insight.css">
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
 </head>
 
 <body>
 
 <div class="main-container">
-    <header>
-        <h1>Unlock The Potential</h1>
-        <p>This is the central hub for productivity.
-            This WebApp will provide powerfull insights and
-            tools for to help to achieve your goals faster
-            and more efficient
+    <header class="hero">
+        <h1 id="type-writer">Unlock Your Financial Potential</h1>
+        <p>Your central hub for managing finances with powerful insights and
+            tools to help you achieve your financial goals faster and more efficiently.
         </p>
-
-        <!-- Sign Up page linking -->
-        <a href="register" class="btn btn-primary">Getting Started</a>
-        <!-- Sign Up page linking -->
-        <a href="login" class="btn btn-secondary">Sign in</a>
-
-
+        <div class="cta-buttons">
+            <a href="/register" class="btn btn-primary">Get Started</a>
+            <a href="/login" class="btn btn-secondary">Sign In</a>
+        </div>
     </header>
+
+    <!-- Features Section -->
+    <section class="features-section">
+        <h2>Why You'll Love It</h2>
+        <div class="features-grid">
+            <!-- First Feature -->
+            <div class="feature-card">
+                <div class="feature-icon">
+                    <svg fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 10V3L4 14h7v7l9-11h-7z"></path>
+                    </svg>
+                </div>
+                <h3>Powerful Insights</h3>
+                <p>Intuitive analytics and visualizations provide you with a deeper understanding of your spending patterns.</p>
+            </div>
+
+            <!-- Second Feature -->
+            <div class="feature-card">
+                <div class="feature-icon">
+                    <svg fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z"></path>
+                    </svg>
+                </div>
+                <h3>Easy to Use</h3>
+                <p>Simple, intuitive design means you can focus on managing your finances, not learning complex software.</p>
+            </div>
+
+            <!-- Third Feature -->
+            <div class="feature-card">
+                <div class="feature-icon">
+                    <svg fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m5.618-4.016A11.955 11.955 0 0112 2.944a11.955 11.955 0 01-8.618 3.04A12.02 12.02 0 003 9c0 5.591 3.824 10.29 9 11.622 5.176-1.332 9-6.03 9-11.622 0-1.042-.133-2.052-.382-3.016z"></path>
+                    </svg>
+                </div>
+                <h3>Secure & Private</h3>
+                <p>Your financial data is protected with industry-standard encryption and JWT authentication.</p>
+            </div>
+        </div>
+    </section>
+
+    <!-- Footer -->
+    <footer class="footer">
+        <p>&copy; 2025 Finance Tracker. All rights reserved.</p>
+    </footer>
 </div>
+
+<script>
+    // Redirect logged-in users to dashboard
+    document.addEventListener('DOMContentLoaded', () => {
+        const token = localStorage.getItem('jwtToken');
+        if (token && window.location.pathname === '/') {
+            window.location.href = '/dashboard';
+        }
+    });
+
+    function typeWriter(text, elementId, speed = 100, callback) {
+        const element = document.getElementById(elementId);
+        element.textContent = '';
+        let i = 0;
+
+        function type() {
+            if (i < text.length) {
+                element.textContent += text.charAt(i);
+                i++;
+                setTimeout(type, speed);
+            } else {
+                if (callback) callback();
+            }
+        }
+
+        type();
+    }
+
+    // Start automatically on page load
+    window.onload = () => {
+        const text = "Unlock Your Financial Potential";
+        typeWriter(text, 'type-writer', 80); // Changed to 'type-writer' to match the HTML ID
+    };
+</script>
 
 </body>
 </html>

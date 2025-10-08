@@ -80,7 +80,7 @@ public class UserDetailServiceTest {
   }
 
   @Test
-  void test_LoadByUsername_Non_Existing_Username_ThrowsEception() {
+  void test_LoadByUsername_Non_Existing_Username_ThrowsException() {
     // Arrange
     when(userRepository.findByUsername(NON_EXISTING_USERNAME))
         .thenThrow(new UsernameNotFoundException("Username Not Found: " + NON_EXISTING_USERNAME));

@@ -38,8 +38,9 @@ public class ApplicationConfig {
                 .csrf(AbstractHttpConfigurer::disable)
                 .authorizeHttpRequests(authRequest -> authRequest
                         .requestMatchers("/api/auth/**").permitAll()
-                        .requestMatchers("/", "/*.html", "/css/**", "/js/**").permitAll()
-                        .requestMatchers("/login", "/register", "/dashboard").permitAll()
+                        .requestMatchers("/login.html", "/register.html", "/insights.html", "/css/**", "/js/**").permitAll()
+                        .requestMatchers("/","/login", "/register",
+                                        "/insights").permitAll()
                         .anyRequest().authenticated())
                 .sessionManagement(session -> session
                         .sessionCreationPolicy(SessionCreationPolicy.STATELESS))

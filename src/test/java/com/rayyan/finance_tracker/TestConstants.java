@@ -1,5 +1,7 @@
 package com.rayyan.finance_tracker;
 
+import java.time.LocalDateTime;
+
 public class TestConstants {
 
     // Dummy Secret Key
@@ -37,7 +39,8 @@ public class TestConstants {
     public static final String SHORT_PASSWORD = "ABC"; // less than 8 characters
     public static final String NULL_OR_EMPTY_PASSWORD = "";
 
-    // ivalid Emails
+    // Test Date
+    public static final LocalDateTime TEST_DATE = LocalDateTime.of(2025, 1, 1, 0, 0, 0);
 
     // constant values for Password and Username and Email Check
     public static final int MIN_USERNAME_LENGTH = 4;
