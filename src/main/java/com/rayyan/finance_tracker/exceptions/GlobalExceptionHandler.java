@@ -16,7 +16,7 @@ public class GlobalExceptionHandler {
   public ResponseEntity<Map<String, Object>> handelDuplicaEntry(DuplicateCredentialsException e) {
     Map<String, Object> response = new HashMap<>();
     response.put("message", e.getMessage());
-    response.put("StatusCode", HttpStatus.NOT_FOUND.value());
+    response.put("StatusCode", HttpStatus.BAD_REQUEST.value());
     response.put("error", "Transaction not found");
     response.put("timestamp", LocalDateTime.now().toString());
 

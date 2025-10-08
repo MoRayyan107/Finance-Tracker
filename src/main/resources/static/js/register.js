@@ -13,6 +13,7 @@ document.addEventListener("DOMContentLoaded", () => {
     
     // get the plaintext values from the fields
     const Username = document.getElementById('username').value;
+    const Email = document.getElementById("email").value;
     const Password = document.getElementById('password').value;
     const ReTypedPassword = document.getElementById('confirm-password').value;
 
@@ -33,6 +34,7 @@ document.addEventListener("DOMContentLoaded", () => {
     // create a JS object 
     const credentials = {
       username: Username,
+      email: Email,
       password: Password
     }
 
@@ -42,9 +44,11 @@ document.addEventListener("DOMContentLoaded", () => {
       headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify(credentials)
     })
-    .then(response => {
-      if (!response.ok) {
-        throw new Error('Registration failed');
+    .then(async response => {
+      if(!response.ok){
+        const errorData = await response.json();
+
+        throw new Error(errorData.messaage || "An Unkown Error Occured");
       }
       return response.json();
     })

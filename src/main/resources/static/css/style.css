@@ -1,11 +1,13 @@
 body{
     font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;    
-    background: linear-gradient(135deg, #3c71d3, #183b77);
+    /*background: linear-gradient(135deg, #3c71d3, #183b77);*/
+    background: linear-gradient(135deg, #5f83e5 0%, #2d2aa7 100%);
     margin: 0;
     display: flex;
     justify-content: center;
     align-items: center;
     height: 100vh;
+    overflow: hidden;
 }
 
 /* login main container*/
@@ -107,3 +109,6 @@ body{
 
 
 /* Responsive Design */
+@media screen and (max-width: 500px) {
+    
+}

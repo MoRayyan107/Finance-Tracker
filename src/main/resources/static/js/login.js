@@ -40,7 +40,7 @@ document.addEventListener("DOMContentLoaded", () => {
         // is response is not ok, show error message
         errorBox.style.display = 'block';
         errorMessage.textContent = "Invalid Credentials";
-        e
+        throw new Error('Invalid Credentials');
       }
       // if login is successful, parse the JSON response
       return Response.json();
@@ -58,7 +58,7 @@ document.addEventListener("DOMContentLoaded", () => {
       console.error('Error:', error);
     
       errorMessage.textContent = 'Login failed. Please check your credentials and try again.';
-      registerForm.reset(); // clear the form fields
+      loginForm.reset(); // clear the form fields
       if(errorBox){
         errorBox.style.display = 'block';
 
