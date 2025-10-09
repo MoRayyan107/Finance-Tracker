@@ -88,6 +88,9 @@ finance-tracker/
 └── target/site/jacoco/index.html
 ```
 
+## Main User Dashboard Design
+![Dashboard page 1.png](design-dashboard/Dashboard%20page%201.png)
+
 ---
 
 ## 🚀 Getting Started
