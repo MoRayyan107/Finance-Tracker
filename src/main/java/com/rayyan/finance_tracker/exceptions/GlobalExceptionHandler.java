@@ -13,11 +13,11 @@ import java.util.Map;
 public class GlobalExceptionHandler {
 
   @ExceptionHandler(DuplicateCredentialsException.class)
-  public ResponseEntity<Map<String, Object>> handelDuplicaEntry(DuplicateCredentialsException e) {
+  public ResponseEntity<Map<String, Object>> handelDuplicateEntry(DuplicateCredentialsException e) {
     Map<String, Object> response = new HashMap<>();
     response.put("message", e.getMessage());
-    response.put("StatusCode", HttpStatus.BAD_REQUEST.value());
-    response.put("error", "Transaction not found");
+    response.put("StatusCode", HttpStatus.CONFLICT.value());
+    response.put("error", "Duplicate Credentials");
     response.put("timestamp", LocalDateTime.now().toString());
 
     return new ResponseEntity<>(response, HttpStatus.CONFLICT);

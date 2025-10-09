@@ -73,11 +73,10 @@
     // Redirect logged-in users to dashboard
     document.addEventListener('DOMContentLoaded', () => {
         const token = localStorage.getItem('jwtToken');
-        if (token && window.location.pathname === '/') {
+        if (token) {
             window.location.href = '/dashboard';
         }
     });
-
     function typeWriter(text, elementId, speed = 100, callback) {
         const element = document.getElementById(elementId);
         element.textContent = '';
