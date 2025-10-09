@@ -10,12 +10,12 @@ document.addEventListener("DOMContentLoaded", () => {
   loginForm.addEventListener('submit', (event) => {
     // prevent the browser from refreshing the page 
     event.preventDefault();
-    
+
     // get the plaintext values from the fields
     const Username = document.getElementById('username').value;
     const Password = document.getElementById('password').value;
 
-    // create a JS object 
+    // create a JS object
     const credentials = {
       username: Username,
       password: Password
@@ -29,47 +29,49 @@ document.addEventListener("DOMContentLoaded", () => {
       headers: {
         'Content-Type': 'application/json'
       },
-
       // convert the JS object to a JSON string
       body: JSON.stringify(credentials)
     })
-    .then(Response => {
+        .then(Response => {
+          // check the response
+          if(!Response.ok){
+            // is response is not ok, show error message
+            errorBox.style.display = 'block';
+            errorMessage.textContent = "Invalid Credentials";
+            throw new Error('Invalid Credentials');
+          }
+          // if login is successful, parse the JSON response
+          return Response.json();
+        })
+        .then(data => {
+          console.log('Full response data:', data);
+          console.log('JWT Token received:', data.jwtToken);
 
-      // check the response
-      if(!Response.ok){
-        // is response is not ok, show error message
-        errorBox.style.display = 'block';
-        errorMessage.textContent = "Invalid Credentials";
-        e
-      }
-      // if login is successful, parse the JSON response
-      return Response.json();
-    })
-    .then(data => {
-      // SUCCSESSFUL LOGIN
-      console.log('Login successful', data);
-      // store the JWT token in local storage
-      localStorage.setItem('token', data.token);
-      // redirect to dashboard
-      window.location.href = '/dashboard';
-    })
-    .catch(error => {
-      // FAILED LOGIN
-      console.error('Error:', error);
-    
-      errorMessage.textContent = 'Login failed. Please check your credentials and try again.';
-      registerForm.reset(); // clear the form fields
-      if(errorBox){
-        errorBox.style.display = 'block';
+          if (!data.jwtToken) {
+            alert('No token received from server!');
+            return;
+          }
 
-        setTimeout(() => {
-          errorBox.style.display = 'none';
-          errorMessage.textContent = ''; // clear message
-        }, 5000); // hide after 5 seconds
-      }
+          localStorage.setItem('jwtToken', data.jwtToken);
+          console.log('Token stored:', localStorage.getItem('jwtToken'));
 
-    });
+          document.cookie = `jwt=${data.jwtToken}; path=/; secure; samesite=strict`;
+          window.location.href = '/dashboard';
+        })
+        .catch(error => {
+          // FAILED LOGIN
+          console.error('Error:', error);
 
+          errorMessage.textContent = 'Login failed. Please check your credentials and try again.';
+          loginForm.reset(); // clear the form fields
+          if(errorBox){
+            errorBox.style.display = 'block';
+
+            setTimeout(() => {
+              errorBox.style.display = 'none';
+              errorMessage.textContent = ''; // clear message
+            }, 5000); // hide after 5 seconds
+          }
+        });
   });
-
 });

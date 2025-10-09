@@ -3,19 +3,487 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Finance Tracker</title>
+    <title>Finance Tracker - Dashboard</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+            padding: 20px;
+        }
+
+        .container {
+            max-width: 1400px;
+            margin: 0 auto;
+        }
+
+        /* Header */
+        header {
+            background: rgba(255, 255, 255, 0.95);
+            padding: 20px 30px;
+            border-radius: 15px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 20px;
+            box-shadow: 0 4px 15px rgba(0, 0, 0, 0.1);
+        }
+
+        .user-greeting {
+            font-size: 18px;
+            color: #333;
+            font-weight: 600;
+        }
+
+        .app-title {
+            font-size: 28px;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            font-weight: 700;
+        }
+
+        .logout-btn {
+            background: white;
+            color: #667eea;
+            border: 2px solid #667eea;
+            padding: 10px 25px;
+            border-radius: 25px;
+            cursor: pointer;
+            font-weight: 600;
+            transition: all 0.3s;
+        }
+
+        .logout-btn:hover {
+            background: #667eea;
+            color: white;
+        }
+
+        /* Two Column Layout */
+        .main-content {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 20px;
+            margin-bottom: 20px;
+        }
+
+        /* Chart Section */
+        .chart-card {
+            background: rgba(255, 255, 255, 0.95);
+            padding: 30px;
+            border-radius: 15px;
+            box-shadow: 0 4px 15px rgba(0, 0, 0, 0.1);
+        }
+
+        .chart-card h2 {
+            text-align: center;
+            color: #333;
+            margin-bottom: 30px;
+            font-size: 24px;
+        }
+
+        .chart-container {
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            margin: 30px 0;
+        }
+
+        .pie-chart {
+            width: 250px;
+            height: 250px;
+            border-radius: 50%;
+            background: conic-gradient(
+                    #e74c3c 0deg 216deg,
+                    #2ecc71 216deg 360deg
+            );
+            position: relative;
+        }
+
+        .pie-chart::before {
+            content: '';
+            position: absolute;
+            width: 140px;
+            height: 140px;
+            background: rgba(255, 255, 255, 0.95);
+            border-radius: 50%;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+        }
+
+        .chart-legend {
+            display: flex;
+            justify-content: center;
+            gap: 30px;
+            margin-top: 20px;
+        }
+
+        .legend-item {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+
+        .legend-color {
+            width: 20px;
+            height: 20px;
+            border-radius: 4px;
+        }
+
+        .legend-color.expenses {
+            background: #e74c3c;
+        }
+
+        .legend-color.income {
+            background: #2ecc71;
+        }
+
+        /* Recent Transactions */
+        .transactions-card {
+            background: rgba(255, 255, 255, 0.95);
+            padding: 30px;
+            border-radius: 15px;
+            box-shadow: 0 4px 15px rgba(0, 0, 0, 0.1);
+            display: flex;
+            flex-direction: column;
+        }
+
+        .transactions-card h2 {
+            color: #333;
+            margin-bottom: 20px;
+            font-size: 24px;
+        }
+
+        .transaction-list {
+            flex: 1;
+        }
+
+        .transaction-item {
+            display: flex;
+            justify-content: space-between;
+            padding: 15px;
+            border-bottom: 1px solid #eee;
+            transition: background 0.2s;
+        }
+
+        .transaction-item:hover {
+            background: #f8f9fa;
+        }
+
+        .transaction-info {
+            flex: 1;
+        }
+
+        .transaction-desc {
+            font-weight: 600;
+            color: #333;
+            margin-bottom: 5px;
+        }
+
+        .transaction-date {
+            font-size: 12px;
+            color: #888;
+        }
+
+        .transaction-category {
+            font-size: 12px;
+            background: #f0f0f0;
+            padding: 3px 8px;
+            border-radius: 10px;
+            display: inline-block;
+            margin-top: 5px;
+        }
+
+        .transaction-amount {
+            font-weight: 700;
+            font-size: 18px;
+        }
+
+        .transaction-amount.expense {
+            color: #e74c3c;
+        }
+
+        .transaction-amount.income {
+            color: #2ecc71;
+        }
+
+        .action-links {
+            display: flex;
+            gap: 15px;
+            margin-top: 20px;
+            padding-top: 20px;
+            border-top: 2px solid #eee;
+        }
+
+        .action-btn {
+            flex: 1;
+            padding: 12px;
+            border-radius: 10px;
+            text-align: center;
+            cursor: pointer;
+            font-weight: 600;
+            transition: all 0.3s;
+            text-decoration: none;
+        }
+
+        .action-btn.primary {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+        }
+
+        .action-btn.secondary {
+            background: white;
+            color: #667eea;
+            border: 2px solid #667eea;
+        }
+
+        .action-btn:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
+        }
+
+        /* Monthly Goals */
+        .goals-section {
+            background: rgba(255, 255, 255, 0.95);
+            padding: 30px;
+            border-radius: 15px;
+            box-shadow: 0 4px 15px rgba(0, 0, 0, 0.1);
+        }
+
+        .goals-section h2 {
+            color: #333;
+            margin-bottom: 25px;
+            font-size: 24px;
+        }
+
+        .goals-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+            gap: 20px;
+        }
+
+        .goal-item {
+            background: #f8f9fa;
+            padding: 20px;
+            border-radius: 10px;
+            border-left: 4px solid #667eea;
+        }
+
+        .goal-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 15px;
+        }
+
+        .goal-name {
+            font-weight: 600;
+            color: #333;
+            font-size: 16px;
+        }
+
+        .goal-status {
+            font-size: 20px;
+        }
+
+        .goal-progress {
+            margin-bottom: 10px;
+        }
+
+        .progress-bar {
+            width: 100%;
+            height: 12px;
+            background: #e0e0e0;
+            border-radius: 10px;
+            overflow: hidden;
+            margin-bottom: 8px;
+        }
+
+        .progress-fill {
+            height: 100%;
+            background: linear-gradient(90deg, #667eea, #764ba2);
+            border-radius: 10px;
+            transition: width 0.5s ease;
+        }
+
+        .progress-fill.complete {
+            background: #2ecc71;
+        }
+
+        .progress-fill.warning {
+            background: #f39c12;
+        }
+
+        .goal-amount {
+            font-size: 14px;
+            color: #666;
+            display: flex;
+            justify-content: space-between;
+        }
+
+        .amount-current {
+            font-weight: 700;
+        }
+
+        @media (max-width: 768px) {
+            .main-content {
+                grid-template-columns: 1fr;
+            }
+
+            header {
+                flex-direction: column;
+                gap: 15px;
+                text-align: center;
+            }
+        }
+    </style>
 </head>
 <body>
+<div class="container">
+    <!-- Header -->
+    <header>
+        <div class="user-greeting">Hello! <span id="username">user</span></div>
+        <div class="app-title">Finance Tracker</div>
+        <button class="logout-btn" onclick="logout()">Log out</button>
+    </header>
 
-    <div id="navbar">
-        <a href="/" class="brand">Finance Tracker</a>
-        <div class="nav-links"></div>
-    </div>
-    
-    <div class="container">
-        <h1>Welcome to Finance Tracker</h1>
-        <p>Your personal finance management tool.</p>
+    <!-- Main Content: Two Columns -->
+    <div class="main-content">
+        <!-- Left: Pie Chart -->
+        <div class="chart-card">
+            <h2>Overall Spending</h2>
+            <div class="chart-container">
+                <div class="pie-chart" id="pieChart"></div>
+            </div>
+            <div class="chart-legend">
+                <div class="legend-item">
+                    <div class="legend-color expenses"></div>
+                    <span>Expenses (60%)</span>
+                </div>
+                <div class="legend-item">
+                    <div class="legend-color income"></div>
+                    <span>Income (40%)</span>
+                </div>
+            </div>
+        </div>
+
+        <!-- Right: Recent Transactions -->
+        <div class="transactions-card">
+            <h2>Recent Transactions</h2>
+            <div class="transaction-list" id="transactionList">
+                <!-- Sample transactions for visibility -->
+                <div class="transaction-item">
+                    <div class="transaction-info">
+                        <div class="transaction-desc">Groceries</div>
+                        <div class="transaction-date">Jun 15</div>
+                        <span class="transaction-category">Food</span>
+                    </div>
+                    <div class="transaction-amount expense">-$85.00</div>
+                </div>
+                <div class="transaction-item">
+                    <div class="transaction-info">
+                        <div class="transaction-desc">Salary</div>
+                        <div class="transaction-date">Jun 1</div>
+                        <span class="transaction-category">Income</span>
+                    </div>
+                    <div class="transaction-amount income">+$3,000.00</div>
+                </div>
+                <div class="transaction-item">
+                    <div class="transaction-info">
+                        <div class="transaction-desc">Rent</div>
+                        <div class="transaction-date">Jun 1</div>
+                        <span class="transaction-category">Housing</span>
+                    </div>
+                    <div class="transaction-amount expense">-$1,200.00</div>
+                </div>
+                <div class="transaction-item">
+                    <div class="transaction-info">
+                        <div class="transaction-desc">Electric Bill</div>
+                        <div class="transaction-date">Jun 10</div>
+                        <span class="transaction-category">Utilities</span>
+                    </div>
+                    <div class="transaction-amount expense">-$120.00</div>
+                </div>
+                <div class="transaction-item">
+                    <div class="transaction-info">
+                        <div class="transaction-desc">Gas Station</div>
+                        <div class="transaction-date">Jun 12</div>
+                        <span class="transaction-category">Transport</span>
+                    </div>
+                    <div class="transaction-amount expense">-$45.00</div>
+                </div>
+            </div>
+            <div class="action-links">
+                <a href="#" class="action-btn primary" onclick="addTransaction(event)">+ Add Transaction</a>
+                <a href="#" class="action-btn secondary" onclick="viewAllTransactions(event)">View All</a>
+            </div>
+        </div>
     </div>
 
+    <!-- Bottom: Monthly Goals -->
+    <div class="goals-section">
+        <h2>Monthly Goals</h2>
+        <div class="goals-grid">
+            <div class="goal-item">
+                <div class="goal-header">
+                    <span class="goal-name">Rent</span>
+                    <span class="goal-status">✅</span>
+                </div>
+                <div class="goal-progress">
+                    <div class="progress-bar">
+                        <div class="progress-fill complete" style="width: 100%"></div>
+                    </div>
+                    <div class="goal-amount">
+                        <span class="amount-current">$1,200</span>
+                        <span>/ $1,200</span>
+                    </div>
+                </div>
+            </div>
+
+            <div class="goal-item">
+                <div class="goal-header">
+                    <span class="goal-name">Food Budget</span>
+                    <span class="goal-status">🟡</span>
+                </div>
+                <div class="goal-progress">
+                    <div class="progress-bar">
+                        <div class="progress-fill warning" style="width: 87.5%"></div>
+                    </div>
+                    <div class="goal-amount">
+                        <span class="amount-current">$350</span>
+                        <span>/ $400</span>
+                    </div>
+                </div>
+            </div>
+
+            <div class="goal-item">
+                <div class="goal-header">
+                    <span class="goal-name">Emergency Fund</span>
+                    <span class="goal-status">🔄</span>
+                </div>
+                <div class="goal-progress">
+                    <div class="progress-bar">
+                        <div class="progress-fill" style="width: 50%"></div>
+                    </div>
+                    <div class="goal-amount">
+                        <span class="amount-current">$2,500</span>
+                        <span>/ $5,000</span>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<script>
+
+</script>
 </body>
 </html>

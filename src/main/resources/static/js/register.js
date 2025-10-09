@@ -10,9 +10,10 @@ document.addEventListener("DOMContentLoaded", () => {
   registerForm.addEventListener('submit', (event) => {
     // prevent the browser from refreshing the page 
     event.preventDefault();
-    
+
     // get the plaintext values from the fields
     const Username = document.getElementById('username').value;
+    const Email = document.getElementById("email").value;
     const Password = document.getElementById('password').value;
     const ReTypedPassword = document.getElementById('confirm-password').value;
 
@@ -30,9 +31,10 @@ document.addEventListener("DOMContentLoaded", () => {
       return; // stop the registration process
     }
 
-    // create a JS object 
+    // create a JS object
     const credentials = {
       username: Username,
+      email: Email,
       password: Password
     }
 
@@ -42,38 +44,40 @@ document.addEventListener("DOMContentLoaded", () => {
       headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify(credentials)
     })
-    .then(response => {
-      if (!response.ok) {
-        throw new Error('Registration failed');
-      }
-      return response.json();
-    })
-    .then(data => {
-      // SUCCESSFUL REGISTRATION
-      console.log('Successfully Registered', data);
+        .then(async response => {
+          if(!response.ok){
+            const errorData = await response.json();
 
-      // store the JWT token in local storage (if you want auto-login)
-      localStorage.setItem('token', data.token);
+            throw new Error(errorData.messaage || "An Unkown Error Occured");
+          }
+          return response.json();
+        })
+        .then(data => {
+          // SUCCESSFUL REGISTRATION
+          console.log('Successfully Registered', data);
 
-      // redirect to login page
-      window.location.href = '/login'; 
-    })
-    .catch(error => {
-      // FAILED REGISTRATION
-      console.error('Error:', error);
-      errorMessage.textContent = 'Registration failed. Please check your credentials and try again.';
+          // store the JWT token in local storage (if you want auto-login)
+          localStorage.setItem('token', data.jwtToken);
 
-      if (errorBox) {
-        errorBox.style.display = 'block';
+          // redirect to login page
+          window.location.href = '/login';
+        })
+        .catch(error => {
+          // FAILED REGISTRATION
+          console.error('Error:', error);
+          errorMessage.textContent = 'Registration failed. Please check your credentials and try again.';
 
-        // hide error after 5 seconds
-        setTimeout(() => {
-          errorBox.style.display = 'none';
-          errorMessage.textContent = '';
-        }, 5000);
-        registerForm.reset(); // clear the form fields
-      }
-    });
+          if (errorBox) {
+            errorBox.style.display = 'block';
+
+            // hide error after 5 seconds
+            setTimeout(() => {
+              errorBox.style.display = 'none';
+              errorMessage.textContent = '';
+            }, 5000);
+            registerForm.reset(); // clear the form fields
+          }
+        });
 
   });
 

@@ -6,7 +6,7 @@ import jakarta.servlet.FilterChain;
 import jakarta.servlet.ServletException;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
-import lombok.RequiredArgsConstructor;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.lang.NonNull;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.core.context.SecurityContextHolder;
@@ -18,68 +18,94 @@ import org.springframework.web.filter.OncePerRequestFilter;
 import java.io.IOException;
 
 @Component
-@RequiredArgsConstructor
 public class JwtAuthenticationFilter extends OncePerRequestFilter {
 
     private final UserDetailService userDetails;
     private final JwtService jwtService;
 
-    /**
-     * Filter to authenticate JWT token in the request
-     * 
-     * @param request httpServletRequest
-     * @param response httpServletResponse
-     * @param filterChain filterChain object
-     * @throws ServletException if a servlet exception occurs
-     * @throws IOException if an I/O exception occurs
-     */
+    @Autowired
+    public JwtAuthenticationFilter(UserDetailService userDetails, JwtService jwtService) {
+        this.userDetails = userDetails;
+        this.jwtService = jwtService;
+    }
+
     @Override
     protected void doFilterInternal(
             @NonNull HttpServletRequest request,
             @NonNull HttpServletResponse response,
             @NonNull FilterChain filterChain
-            ) throws ServletException, IOException {
+    ) throws ServletException, IOException {
         final String authHeader = request.getHeader("Authorization");
-        final String jwt;
-        final String username;
+        String jwt = null;
 
-        // Step 1: check if the header is null OR starts with "Bearer"
-        if (authHeader == null || !authHeader.startsWith("Bearer ")) {
-            filterChain.doFilter(request, response);
-            return; // pass the request to the next filter chain
+        // Step 1: Check Authorization header first
+        if (authHeader != null && authHeader.startsWith("Bearer ")) {
+            jwt = authHeader.substring(7); // "Bearer " length = 7
         }
-        // Step 2: Extract the auth JWT token from the header
-        jwt = authHeader.substring(7); // "Bearer " length = 7
+        // Step 2: If no Authorization header, check cookies
+        else {
+            jakarta.servlet.http.Cookie[] cookies = request.getCookies();
+            if (cookies != null) {
+                for (jakarta.servlet.http.Cookie cookie : cookies) {
+                    if ("jwt".equals(cookie.getName())) {
+                        jwt = cookie.getValue();
+                        break;
+                    }
+                }
+            }
+        }
 
-        // Step 3: extract the username by providing the token
-        username = jwtService.extractUsername(jwt);
+        // If no JWT found, continue without authentication
+        if (jwt == null || jwt.isEmpty()) {
+            filterChain.doFilter(request, response);
+            return;
+        }
 
-        // Step 4: Check if user is NOT null and the user IS validated
+        // Step 3: extract the username from token
+
+        // Validate JWT format before parsing
+        if (!isValidJwtFormat(jwt)) {
+            filterChain.doFilter(request, response);
+            return;
+        }
+
+        final String username;
+        try {
+            username = jwtService.extractUsername(jwt);
+        } catch (Exception e) {
+            // Invalid JWT, skip authentication
+            filterChain.doFilter(request, response);
+            return;
+        }
+
+        // Step 4: Validate token and set authentication
         if (username != null && SecurityContextHolder.getContext().getAuthentication() == null) {
-            // get the user details from the database
             UserDetails userDetails = this.userDetails.loadUserByUsername(username);
-            // Step 5: check if the JWT token is valid
             if (jwtService.isTokenValid(jwt, userDetails)) {
-                // if the token is valid, create a new authentication Object for Spring Security
                 UsernamePasswordAuthenticationToken authToken = new UsernamePasswordAuthenticationToken(
                         userDetails,
                         null,
                         userDetails.getAuthorities()
                 );
-
-                // adds the original HTTP request into the Authentication object
-                authToken.setDetails(
-                        new WebAuthenticationDetailsSource().buildDetails(request)
-                );
-
-                /* Step 6: The crucial step, the Security Context Holder needs to be updated
-                 * this marks the current user as authenticated for the duration of that request
-                 * the next filters will mark this as the User is logged in
-                */
+                authToken.setDetails(new WebAuthenticationDetailsSource().buildDetails(request));
                 SecurityContextHolder.getContext().setAuthentication(authToken);
             }
         }
-        // Step 7: pass the request and response along to the next filter chain
         filterChain.doFilter(request, response);
+    }
+
+    /**
+     * Checking for a valid token
+     * @param token  the JWT token
+     * @return true if valid
+     */
+    private boolean isValidJwtFormat(String token) {
+        // JWT must contain exactly two periods
+        if (token == null) return false;
+        int periodCount = 0;
+        for (char c : token.toCharArray()) {
+            if (c == '.') periodCount++;
+        }
+        return periodCount == 2;
     }
 }
