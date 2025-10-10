@@ -12,6 +12,28 @@ import java.util.Map;
 @RestControllerAdvice
 public class GlobalExceptionHandler {
 
+  @ExceptionHandler(InsufficientFundsException.class)
+  public ResponseEntity<Map<String, Object>> insufficientFundsException(InsufficientFundsException e) {
+    Map<String, Object> response = new HashMap<>();
+    response.put("message", e.getMessage());
+    response.put("StatusCode", HttpStatus.BAD_REQUEST.value());
+    response.put("error", "Withdrawal Error");
+    response.put("timestamp", LocalDateTime.now().toString());
+
+    return new ResponseEntity<>(response, HttpStatus.BAD_REQUEST);
+  }
+
+  @ExceptionHandler(InvalidAmountException.class)
+  public ResponseEntity<Map<String, Object>> InvalidAmountException(InvalidAmountException e) {
+    Map<String, Object> response = new HashMap<>();
+    response.put("message", e.getMessage());
+    response.put("StatusCode", HttpStatus.FORBIDDEN.value());
+    response.put("error", "Withdrawal Error");
+    response.put("timestamp", LocalDateTime.now().toString());
+
+    return new ResponseEntity<>(response, HttpStatus.FORBIDDEN);
+  }
+
   @ExceptionHandler(DuplicateCredentialsException.class)
   public ResponseEntity<Map<String, Object>> handelDuplicateEntry(DuplicateCredentialsException e) {
     Map<String, Object> response = new HashMap<>();

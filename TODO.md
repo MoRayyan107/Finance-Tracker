@@ -78,11 +78,17 @@
     - [ ] Improve error handling and user feedback
     - [ ] Add category icons and better visual hierarchy
 
-## 🎯 **PHASE 5: GOALS SYSTEM** ❌ **NOT STARTED**
+## 🎯 **PHASE 5: GOALS SYSTEM** 🟡 **IN PROGRESS**
 - [ ] **Backend Goals Implementation**
-    - [ ] Create Goal entity with User relationship
-    - [ ] Implement GoalRepository
+    - [x] Create Goal entity with User relationship
+    - [x] Implement GoalRepository
     - [ ] Build GoalService with CRUD operations
+      - [ ] create a goal for user
+      - [ ] update the goal status when added amount into the goal
+      - [ ] find all goals by User
+      - [ ] find goal using ID
+      - [ ] withdraw a amount from a goal (if needed by user)
+      - [ ] Delete a goal 
     - [ ] Create GoalController with secure endpoints
 
 - [ ] **Goals API Endpoints**
