@@ -12,22 +12,21 @@ import java.math.BigDecimal;
 import java.math.RoundingMode;
 import java.time.LocalDateTime;
 
-@Data
 @Entity
+@Data
 @AllArgsConstructor
 @NoArgsConstructor
 @Table(name = "savings")
 public class Savings {
-
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 
     @Column(nullable = false)
-    private String goalName;
+    private String savingsName;
 
     @Column(nullable = false, length = 500)
-    private String goalDescription;
+    private String savingsDescription;
 
     @Column(nullable = false, precision = 12, scale = 2)
     private BigDecimal currentAmount;
@@ -35,15 +34,15 @@ public class Savings {
     @Column(nullable = false, precision = 12, scale = 2)
     private BigDecimal targetAmount;
 
-    @Column(nullable = false)
+    @Column(nullable = false, columnDefinition = "datetime")
     private LocalDateTime createdAt;
 
-    @Column // updates after a user modifies the goal
+    @Column(columnDefinition = "datetime") // updates after a user modifies the goal
     private LocalDateTime updatedAt;
 
     @Enumerated(EnumType.STRING)
     @Column(nullable = false)
-    private GoalStatus status;
+    private SavingsStatus status;
 
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "user_id")
@@ -55,7 +54,7 @@ public class Savings {
      * IN_PROGRESS -> the goal has not yet reached its target value
      * COMPLETED   -> the goal has reached its target value
      */
-    public enum GoalStatus {
+    public enum SavingsStatus {
         IN_PROGRESS,
         COMPLETED
     }
@@ -63,17 +62,31 @@ public class Savings {
     /**
      * Gets the completion percentage of a goal.
      *
-     * @return BigDecimal value (0–100), representing the percentage.
+     * @return String stating, In Progress 20%, Completed 100%, Exceeded By 24%
      */
-    public BigDecimal getCompletion() {
+    public String getCompletion() {
         if (targetAmount == null || targetAmount.compareTo(BigDecimal.ZERO) == 0) {
-            return BigDecimal.ZERO;
+            return "In Progress (0%)";
         }
 
-        // Clamp to 100% max
-        return currentAmount.min(targetAmount)
-                .divide(targetAmount, 2, RoundingMode.HALF_UP)
-                .multiply(BigDecimal.valueOf(100));
+        var completion = currentAmount
+                .divide(targetAmount, 2, RoundingMode.HALF_EVEN)
+                .multiply(BigDecimal.valueOf(100))
+                .setScale(2, RoundingMode.HALF_EVEN);
+
+        String status;
+        BigDecimal hundred =  BigDecimal.valueOf(100);
+
+        if (completion.compareTo(BigDecimal.valueOf(100)) < 0)
+            status = "In Progress ";
+        else if (completion.compareTo(BigDecimal.valueOf(100)) == 0)
+            status = "Completed ";
+        else {
+            status = "Exceeded By ";
+            completion = completion.subtract(hundred);
+        }
+
+        return status + completion + "%";
     }
 
     /**
@@ -116,9 +129,9 @@ public class Savings {
      */
     private void updateStatus() {
         if (currentAmount.compareTo(targetAmount) >= 0) {
-            this.status = GoalStatus.COMPLETED;
+            this.status = SavingsStatus.COMPLETED;
         } else {
-            this.status = GoalStatus.IN_PROGRESS;
+            this.status = SavingsStatus.IN_PROGRESS;
         }
     }
 
@@ -138,8 +151,10 @@ public class Savings {
             currentAmount = BigDecimal.ZERO;
         }
         if (status == null) {
-            status = GoalStatus.IN_PROGRESS;
+            status = SavingsStatus.IN_PROGRESS;
         }
+        // if current Amount is existing on creation
+        updateStatus();
     }
 
     @PreUpdate

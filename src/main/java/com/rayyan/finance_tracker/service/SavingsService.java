@@ -72,18 +72,48 @@ public class SavingsService {
      */
     @Transactional
     public String updateSavings(Long Id, Savings updatingSavings, User user) {
-        log.info("Validating the updated savings {}", updatingSavings);
-        validateSavings(updatingSavings);
+        log.info("Updating savings {}", updatingSavings);
 
         Savings goalToUpdate = findSavingsByIdAndUser(Id, user);
-        log.info("Savings updated with Idr: {}", goalToUpdate.getId());
+        log.info("Savings to update with Id: {}", goalToUpdate.getId());
 
-        goalToUpdate.setGoalName(updatingSavings.getGoalName());
-        goalToUpdate.setGoalDescription(updatingSavings.getGoalDescription());
-        goalToUpdate.setTargetAmount(updatingSavings.getTargetAmount());
+        boolean hasUpdates = false;
+
+        // Update savingsName if provided
+        if (updatingSavings.getSavingsName() != null) {
+            String name = updatingSavings.getSavingsName().trim();
+            if (name.isEmpty()) {
+                throw new ValidationException("Savings name cannot be empty");
+            }
+            goalToUpdate.setSavingsName(name);
+            hasUpdates = true;
+        }
+
+        // Update savingsDescription if provided
+        if (updatingSavings.getSavingsDescription() != null) {
+            String desc = updatingSavings.getSavingsDescription().trim();
+            if (desc.isEmpty()) {
+                throw new ValidationException("Savings description cannot be empty");
+            }
+            goalToUpdate.setSavingsDescription(desc);
+            hasUpdates = true;
+        }
+
+        // Update targetAmount if provided
+        if (updatingSavings.getTargetAmount() != null) {
+            if (updatingSavings.getTargetAmount().compareTo(BigDecimal.ZERO) <= 0) {
+                throw new ValidationException("Target must be a positive digit");
+            }
+            goalToUpdate.setTargetAmount(updatingSavings.getTargetAmount());
+            hasUpdates = true;
+        }
+
+        if (!hasUpdates) {
+            throw new ValidationException("No fields provided to update");
+        }
 
         savingsRepository.save(goalToUpdate);
-        log.info("Savings updated with Idr: {}", goalToUpdate.getId());
+        log.info("Savings updated with Id: {}", goalToUpdate.getId());
         return "Savings updated successfully!";
     }
 
@@ -165,8 +195,8 @@ public class SavingsService {
      * @return List of savings goal with status In-Progress
      */
     public List<Savings> getSavingsInProgress(User user) {
-        log.info("Getting all savings for user: {} with status '{}'", user.getUsername(), Savings.GoalStatus.IN_PROGRESS);
-        return savingsRepository.findByUserAndStatus(user,  Savings.GoalStatus.IN_PROGRESS);
+        log.info("Getting all savings for user: {} with status '{}'", user.getUsername(), Savings.SavingsStatus.IN_PROGRESS);
+        return savingsRepository.findByUserAndStatus(user,  Savings.SavingsStatus.IN_PROGRESS);
 
     }
 
@@ -176,8 +206,8 @@ public class SavingsService {
      * @return List of savings goal with status Completed
      */
     public List<Savings> getSavingsCompleted(User user) {
-        log.info("Getting all savings for user: {} with status '{}'", user.getUsername(),  Savings.GoalStatus.COMPLETED);
-        return savingsRepository.findByUserAndStatus(user,  Savings.GoalStatus.COMPLETED);
+        log.info("Getting all savings for user: {} with status '{}'", user.getUsername(),  Savings.SavingsStatus.COMPLETED);
+        return savingsRepository.findByUserAndStatus(user,  Savings.SavingsStatus.COMPLETED);
     }
 
     /**
@@ -187,9 +217,9 @@ public class SavingsService {
      * @Throws ValidationException if the saving goal is not a valid request
      */
     private void validateSavings(Savings savings) {
-        if (savings.getGoalName() == null || savings.getGoalName().trim().isEmpty())
+        if (savings.getSavingsName() == null || savings.getSavingsName().trim().isEmpty())
             throw new ValidationException("Goal name is cannot be empty");
-        if (savings.getGoalDescription() == null || savings.getGoalDescription().trim().isEmpty())
+        if (savings.getSavingsDescription() == null || savings.getSavingsDescription().trim().isEmpty())
             throw new ValidationException("Goal description is cannot be empty");
         if (savings.getTargetAmount() == null || savings.getTargetAmount().compareTo(BigDecimal.ZERO) <= 0)
             throw new ValidationException("Target must be a positive digit");

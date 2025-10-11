@@ -19,5 +19,5 @@ public interface SavingsRepository extends JpaRepository<Savings, Long> {
     Optional<Savings> findByIdAndUser (Long id, User user);
 
     // gets the goals of the given transaction status
-    List<Savings> findByUserAndStatus(User user, Savings.GoalStatus status);
+    List<Savings> findByUserAndStatus(User user, Savings.SavingsStatus status);
 }

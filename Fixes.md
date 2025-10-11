@@ -1,5 +1,7 @@
 # 📊 Finance Tracker - Fixes To Make
 
-## Main Fixes 
+## Fixed
+- [x] Status calculation, 100% gives In Progress (wrong)
 
-- [ ] Status calculation, 100% gives In Progress (wrong)
+## Bugs Not Fixed
+- [ ]

@@ -2,7 +2,6 @@ package com.rayyan.finance_tracker.controllers;
 
 import com.rayyan.finance_tracker.entity.Savings;
 import com.rayyan.finance_tracker.entity.User;
-import com.rayyan.finance_tracker.repository.SavingsRepository;
 import com.rayyan.finance_tracker.service.SavingsService;
 import com.rayyan.finance_tracker.service.UserDetailService;
 import lombok.AllArgsConstructor;
@@ -58,7 +57,7 @@ public class SavingsController {
      * @param id the savings Id to fetch
      * @return the savings object
      */
-    @GetMapping("/{id}")
+    @GetMapping("/my-savings/{id}")
     public Savings getSavingsById(@PathVariable Long id) {
         return savingsService.findSavingsByIdAndUser(id, getCurrentUser());
     }
@@ -92,7 +91,7 @@ public class SavingsController {
      * @return Success Message if withdrawal
      */
     @PostMapping("/{id}/withdraw")
-    public String withdrawFromSavings(@PathVariable Long id, BigDecimal amount) {
+    public String withdrawFromSavings(@PathVariable Long id, @RequestBody BigDecimal amount) {
         return  savingsService.withdrawFromSavings(id, amount, getCurrentUser());
     }
 

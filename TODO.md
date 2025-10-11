@@ -98,7 +98,7 @@
 - [x] **Savings API Endpoints**
   - [x] `POST /api/savings/create` – Create new savings
   - [x] `GET /api/savings/my-savings` – Get all savings for the authenticated user
-  - [x] `GET /api/savings/{id}` – Get specific savings by ID
+  - [x] `GET /api/savings/my-savings/{id}` – Get specific savings by ID
   - [x] `PUT /api/savings/update/{id}` – Update existing savings (name, description, target)
   - [x] `POST /api/savings/{id}/deposit` – Add funds to savings
   - [x] `POST /api/savings/{id}/withdraw` – Withdraw funds from savings
@@ -106,6 +106,11 @@
   - [x] `GET /api/savings/total-savings` – Get total amount saved across all savings
   - [x] `GET /api/savings/in-progress` – Get all savings with status **IN_PROGRESS**
   - [x] `GET /api/savings/completed` – Get all savings with status **COMPLETED**
+
+- [ ] **Make Test cases for savings**
+  - [ ] **Service Testings**
+    - 
+  - [ ] **EndPoints Testing**
 
 
 - [ ] **Frontend Savings Integration**
@@ -135,9 +140,9 @@
 ---
 
 ## 📊 **Current Status Summary**
-- **Completed:** 75%
-- **In Progress:** 15%
-- **Remaining:** 10%
+- **Completed:** ~85%
+- **In Progress:** ~10%
+- **Remaining:** ~5%
 - **Blockers:** None - Core authentication and API issues resolved! 🎉
 
 ## 🎯 **Immediate Next Steps**
@@ -146,4 +151,4 @@
 3. Add progress visualization for savings
 4. Polish UI/UX with color coding and loading states
 
-**Last Updated:** 9th October 2025
+**Last Updated:** 11th October 2025
