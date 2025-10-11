@@ -1,0 +1,151 @@
+package com.rayyan.finance_tracker.entity;
+
+import com.fasterxml.jackson.annotation.JsonIgnore;
+import com.rayyan.finance_tracker.exceptions.InsufficientFundsException;
+import com.rayyan.finance_tracker.exceptions.InvalidAmountException;
+import jakarta.persistence.*;
+import lombok.AllArgsConstructor;
+import lombok.Data;
+import lombok.NoArgsConstructor;
+
+import java.math.BigDecimal;
+import java.math.RoundingMode;
+import java.time.LocalDateTime;
+
+@Data
+@Entity
+@AllArgsConstructor
+@NoArgsConstructor
+@Table(name = "savings")
+public class Savings {
+
+    @Id
+    @GeneratedValue(strategy = GenerationType.IDENTITY)
+    private Long id;
+
+    @Column(nullable = false)
+    private String goalName;
+
+    @Column(nullable = false, length = 500)
+    private String goalDescription;
+
+    @Column(nullable = false, precision = 12, scale = 2)
+    private BigDecimal currentAmount;
+
+    @Column(nullable = false, precision = 12, scale = 2)
+    private BigDecimal targetAmount;
+
+    @Column(nullable = false)
+    private LocalDateTime createdAt;
+
+    @Column // updates after a user modifies the goal
+    private LocalDateTime updatedAt;
+
+    @Enumerated(EnumType.STRING)
+    @Column(nullable = false)
+    private GoalStatus status;
+
+    @ManyToOne(fetch = FetchType.LAZY)
+    @JoinColumn(name = "user_id")
+    @JsonIgnore
+    private User user;
+
+    /**
+     * Status codes for goals:
+     * IN_PROGRESS -> the goal has not yet reached its target value
+     * COMPLETED   -> the goal has reached its target value
+     */
+    public enum GoalStatus {
+        IN_PROGRESS,
+        COMPLETED
+    }
+
+    /**
+     * Gets the completion percentage of a goal.
+     *
+     * @return BigDecimal value (0–100), representing the percentage.
+     */
+    public BigDecimal getCompletion() {
+        if (targetAmount == null || targetAmount.compareTo(BigDecimal.ZERO) == 0) {
+            return BigDecimal.ZERO;
+        }
+
+        // Clamp to 100% max
+        return currentAmount.min(targetAmount)
+                .divide(targetAmount, 2, RoundingMode.HALF_UP)
+                .multiply(BigDecimal.valueOf(100));
+    }
+
+    /**
+     * Adds funds to the goal.
+     *
+     * @param amountToAdd amount to add
+     * @throws InvalidAmountException if the amount is <= 0
+     */
+    public void addToSavings(BigDecimal amountToAdd) {
+        if (amountToAdd.compareTo(BigDecimal.ZERO) <= 0) {
+            throw new InvalidAmountException("Amount must be greater than zero");
+        }
+        this.currentAmount = currentAmount.add(amountToAdd);
+        this.updatedAt = LocalDateTime.now();
+        updateStatus();
+    }
+
+    /**
+     * Withdraws funds from the goal.
+     *
+     * @param amountToWithdraw amount to withdraw
+     * @throws InvalidAmountException     if amount < 0
+     * @throws InsufficientFundsException if withdrawal > current balance
+     */
+    public void withdrawFromSaving(BigDecimal amountToWithdraw) {
+        if (amountToWithdraw.compareTo(BigDecimal.ZERO) < 0) {
+            throw new InvalidAmountException("Amount must be non-negative");
+        }
+        if (this.currentAmount.compareTo(amountToWithdraw) < 0) {
+            throw new InsufficientFundsException("Insufficient funds in goal to withdraw");
+        }
+
+        this.currentAmount = currentAmount.subtract(amountToWithdraw);
+        this.updatedAt = LocalDateTime.now();
+        updateStatus();
+    }
+
+    /**
+     * Updates the goal status based on progress.
+     */
+    private void updateStatus() {
+        if (currentAmount.compareTo(targetAmount) >= 0) {
+            this.status = GoalStatus.COMPLETED;
+        } else {
+            this.status = GoalStatus.IN_PROGRESS;
+        }
+    }
+
+    // JPA lifecycle callbacks
+    /*
+     * @PrePresets add's data before saving into the database
+     * this annotation runs before inserting into new entity
+     *
+     * Adds currentAmount, Status to its default values instead of manual setting itr
+     */
+    @PrePersist
+    protected void onCreate() {
+        createdAt = LocalDateTime.now();
+        updatedAt = LocalDateTime.now();
+
+        if (currentAmount == null) {
+            currentAmount = BigDecimal.ZERO;
+        }
+        if (status == null) {
+            status = GoalStatus.IN_PROGRESS;
+        }
+    }
+
+    @PreUpdate
+    protected void onUpdate() {
+        updatedAt = LocalDateTime.now();
+        updateStatus();
+    }
+}
+

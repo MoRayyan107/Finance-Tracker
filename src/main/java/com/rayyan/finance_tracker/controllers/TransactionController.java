@@ -42,8 +42,7 @@ public class TransactionController {
     @PostMapping("/create")
     public String createTransaction(@RequestBody Transaction transaction) {
         // Get current user from JWT token
-        User currentUser = getCurrentUser();
-        transaction.setUser(currentUser);
+        transaction.setUser(getCurrentUser());
 
         transactionService.createTransaction(transaction);
         return "Transaction Successfully created";
@@ -58,8 +57,7 @@ public class TransactionController {
     @GetMapping("/fetchAll")
     public List<Transaction> getAllTransactions() {
         // Get only transactions for current user
-        User currentUser = getCurrentUser();
-        return transactionService.findTransactionsByUser(currentUser);
+        return transactionService.findTransactionsByUser(getCurrentUser());
     }
 
     /**
@@ -71,8 +69,7 @@ public class TransactionController {
      */
     @GetMapping("/{id}")
     public Transaction getTransactionById(@PathVariable Long id) {
-        User currentUser = getCurrentUser();
-        return transactionService.getTransactionByIdAndUser(id, currentUser);
+        return transactionService.getTransactionByIdAndUser(id, getCurrentUser());
     }
 
     /**
@@ -86,8 +83,7 @@ public class TransactionController {
      */
     @PutMapping("/update/{id}")
     public String updateTransactionById(@PathVariable Long id, @RequestBody Transaction transaction) {
-        User currentUser = getCurrentUser();
-        return transactionService.updateTransaction(id, transaction, currentUser);
+        return transactionService.updateTransaction(id, transaction, getCurrentUser());
     }
 
     /**
@@ -99,7 +95,6 @@ public class TransactionController {
      */
     @DeleteMapping("/delete/{id}")
     public String deleteTransactionById(@PathVariable Long id) {
-        User currentUser = getCurrentUser();
-        return transactionService.deleteTransaction(id, currentUser);
+        return transactionService.deleteTransaction(id, getCurrentUser());
     }
 }
