@@ -87,7 +87,10 @@ public class AuthenticationServiceTest {
         .build();
   }
 
-  /* ********************* Valid Username and Password ********************* */
+  /* ***************************************
+   * Valid Registration and Authentication
+   * ***************************************
+   */
   @Test
   void test_Register_ValidCredentials_Success() {
     // When
@@ -158,8 +161,9 @@ public class AuthenticationServiceTest {
   }
 
   /*
-   * ********************* Check Duplicate during Authentication
-   * *********************
+   * ***************************************
+   * Check Duplicate during Authentication
+   * ***************************************
    */
   @Test
   void test_Register_DuplicateCredentials_Username_Throws_ValidationException() {
@@ -194,12 +198,15 @@ public class AuthenticationServiceTest {
     verify(passwordEncoder, times(1)).encode(VALID_PASSWORD);
     verify(userRepository, never()).save(any(User.class));
     verifyNoInteractions(jwtService);
-    
+
     // pass the test
     test_Passes.put(20,"Register: Duplicate Credentials (Email) Throws Exception");
   }
 
-  /* ********************* Username and Password is Short ********************* */
+  /* ***************************************
+   * Username, Password and Email is Short
+   * ***************************************
+   */
   @Test
   void test_Register_ShortUsername_Throws_ValidationException() {
     // Given
@@ -316,7 +323,10 @@ public class AuthenticationServiceTest {
     test_Passes.put(8, "Authenticate: Short Email Throws Validation Exception");
   }
 
-  /* ********************* Username and Password is Long ********************* */
+  /* ***************************************
+   * Username, Password and Email is Long
+   * ***************************************
+   */
   @Test
   void test_Register_LongUsername_Throws_ValidationException() {
     // Given
@@ -434,10 +444,11 @@ public class AuthenticationServiceTest {
     test_Passes.put(14, "Authenticate: Long Email Throws Validation Exception");
   }
 
-  /*
-   * ********************* Username and Password is Null or Empty
-   * *********************
+  /* ***************************************
+   * Username and Password is Null or Empty
+   * ***************************************
    */
+
   @Test
   void test_Register_NullOrEmptyUsername_Throws_ValidationException() {
     // Given
@@ -479,6 +490,26 @@ public class AuthenticationServiceTest {
   }
 
   @Test
+  void test_Register_NullOrEmptyEmail_Throws_ValidationException() {
+    // Given
+    RegisterRequest request = RegisterRequest.builder()
+            .username(VALID_USERNAME)
+            .password(VALID_PASSWORD)
+            .email(NULL_OR_EMPTY_EMAIL)
+            .build();
+
+    // assert
+    assertThrows(ValidationException.class, () -> authService.register(request),
+            "Expected to Throw ValidationException for Null or Empty Email");
+
+    // verify
+    verifyNoInteractions(userRepository, passwordEncoder, jwtService);
+
+    // pass the test
+    test_Passes.put(19, "Register: Short/Null Email Throws Validation Exception");
+  }
+
+  @Test
   void test_Authenticate_NullOrEmptyUsername_Throws_ValidationException() {
     // Given
     AuthenticationRequest request = AuthenticationRequest.builder()
@@ -514,6 +545,24 @@ public class AuthenticationServiceTest {
 
     // pass test
     test_Passes.put(18, "Authenticate: Null Or Empty Password Throws Validation Exception");
+  }
+
+  @Test
+  void test_Authenticate_NullOrEmptyEmail_Throws_ValidationException() {
+    AuthenticationRequest request = AuthenticationRequest.builder()
+            .username(NULL_OR_EMPTY_EMAIL) // username can hold either username or Email
+            .password(VALID_PASSWORD)
+            .build();
+
+    // assert
+    assertThrows(ValidationException.class, () -> authService.authenticate(request),
+            "Expected to Throw ValidationException for Null or Empty Email");
+
+    // verify
+    verifyNoInteractions(userRepository, passwordEncoder, jwtService);
+
+    // pass the test
+    test_Passes.put(20, "Authenticate: Null Or Empty Email Throws Validation Exception");
   }
 
   /******************************************

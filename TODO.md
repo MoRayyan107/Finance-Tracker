@@ -60,7 +60,7 @@
     - [x] Fix CORS configuration for frontend-backend communication
     - [x] Handle token expiration properly
 
-## 🎨 **PHASE 4: DASHBOARD ENHANCEMENTS** 🟡 **IN PROGRESS**
+## 🎨 **PHASE 4: DASHBOARD ENHANCEMENTS** 🟡 **ON HOLD**
 - [ ] **Real Data Integration**
     - [ ] Fetch and display actual user transactions
     - [ ] Calculate real financial summaries (income/expenses/balance)
@@ -78,30 +78,61 @@
     - [ ] Improve error handling and user feedback
     - [ ] Add category icons and better visual hierarchy
 
-## 🎯 **PHASE 5: GOALS SYSTEM** 🟡 **IN PROGRESS**
-- [ ] **Backend Goals Implementation**
-    - [x] Create Goal entity with User relationship
-    - [x] Implement GoalRepository
-    - [ ] Build GoalService with CRUD operations
-      - [ ] create a goal for user
-      - [ ] update the goal status when added amount into the goal
-      - [ ] find all goals by User
-      - [ ] find goal using ID
-      - [ ] withdraw a amount from a goal (if needed by user)
-      - [ ] Delete a goal 
-    - [ ] Create GoalController with secure endpoints
+## 🎯 **PHASE 5: SAVINGS SYSTEM** 🟡 **IN PROGRESS**
+- [x] **Backend Savings Implementation** ✅
+    - [x] Create Savings entity with User relationship
+    - [x] Implement SavingsRepository
+    - [x] Build SavingsService with CRUD operations
+      - [x] create savings for user
+      - [x] update savings status when added amount into savings
+      - [x] Update savings (Description, Name, Target Amount)
+      - [x] find all savings by User
+      - [x] find savings using ID and User
+      - [x] withdraw amount from savings (if needed by user)
+      - [x] Delete savings
+      - [x] fetch completed and In-progress savings for a user
+      - [x] validating savings
+      - [x] calculate total savings
+    - [x] Create SavingsController with secure endpoints
 
-- [ ] **Goals API Endpoints**
-    - [ ] `POST /api/goals/create` - Create new goal
-    - [ ] `GET /api/goals/my-goals` - Get user's goals
-    - [ ] `PUT /api/goals/{id}/progress` - Update goal progress
-    - [ ] `DELETE /api/goals/{id}` - Delete goal
 
-- [ ] **Frontend Goals Integration**
-    - [ ] Display goals with progress bars in dashboard
-    - [ ] Create goal creation/editing forms
-    - [ ] Implement goal progress tracking
-    - [ ] Add goal status indicators (✅ 🟡 🔄)
+- [x] **Savings API Endpoints** ✅
+  - [x] `POST /api/savings/create` – Create new savings
+  - [x] `GET /api/savings/my-savings` – Get all savings for the authenticated user
+  - [x] `GET /api/savings/my-savings/{id}` – Get specific savings by ID
+  - [x] `PUT /api/savings/update/{id}` – Update existing savings (name, description, target)
+  - [x] `POST /api/savings/{id}/deposit` – Add funds to savings
+  - [x] `POST /api/savings/{id}/withdraw` – Withdraw funds from savings
+  - [x] `DELETE /api/savings/delete/{id}` – Delete savings
+  - [x] `GET /api/savings/total-savings` – Get total amount saved across all savings
+  - [x] `GET /api/savings/in-progress` – Get all savings with status **IN_PROGRESS**
+  - [x] `GET /api/savings/completed` – Get all savings with status **COMPLETED**
+
+
+- [ ] **Make Test cases for savings**
+  - [x] **Service Testings (including edge cases)** ✅
+    - [x] Create Savings Test Cases 
+    - [x] Update Savings Test Cases
+    - [x] Delete Savings Test Cases
+    - [x] Deposit/Withdraw Test Cases
+    - [x] Fetch Savings Test Cases
+    - [x] get Savings based on status (IN_PROGRESS, COMPLETED)
+    - [x] Total Savings Calculation Test Cases
+  - [ ] **Repository Testing**
+    - [ ] Create Repository Test Cases
+    - [ ] Custom Query Test Cases
+  - [ ] **Controller Testing**
+    - [ ] Create Controller Test Cases
+    - [ ] Endpoint Security Test Cases
+    - [ ] Validation Test Cases
+    - [ ] Error Handling Test Cases
+
+
+- [ ] **Frontend Savings Integration**
+    - [ ] Display savings with progress bars in dashboard
+    - [ ] Create savings creation/editing forms
+    - [ ] Implement savings progress tracking
+    - [ ] Add savings status indicators (✅ 🟡 🔄)
 
 ## 🚀 **FUTURE ENHANCEMENTS** 💡 **PLANNED**
 - [ ] **Advanced Features**
@@ -124,15 +155,15 @@
 ---
 
 ## 📊 **Current Status Summary**
-- **Completed:** 75%
-- **In Progress:** 15%
-- **Remaining:** 10%
+- **Completed:** ~85%
+- **In Progress:** ~10%
+- **Remaining:** ~5%
 - **Blockers:** None - Core authentication and API issues resolved! 🎉
 
 ## 🎯 **Immediate Next Steps**
 1. Integrate real transaction data into dashboard
-2. Implement goals backend system
-3. Add progress visualization for goals
+2. Implement savings backend system
+3. Add progress visualization for savings
 4. Polish UI/UX with color coding and loading states
 
-**Last Updated:** 9th October 2025
+**Last Updated:** 11th October 2025
