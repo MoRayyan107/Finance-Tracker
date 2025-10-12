@@ -81,7 +81,7 @@ public class SavingsController {
      */
     @PostMapping("/{id}/deposit")
     public String depositIntoSavings(@PathVariable Long id, @RequestBody BigDecimal amount) {
-        return savingsService.depositFromSavings(id, amount, getCurrentUser());
+        return savingsService.depositToSavings(id, amount, getCurrentUser());
     }
 
     /**

@@ -59,7 +59,7 @@ public class SavingsService {
         validateSavings(savings);
         savingsRepository.save(savings);
         log.info("Savings created with Idr: {}", savings.getId());
-        return "Saving Goal added Successfully!";
+        return "Savings created successfully!";
     }
 
     /**
@@ -129,12 +129,12 @@ public class SavingsService {
     public String withdrawFromSavings(Long Id, BigDecimal amount, User user) {
         log.info("Withdrawing amount '{}' from saving goal Id {}", amount, Id);
 
-        Savings goalToWithdrawFrom = findSavingsByIdAndUser(Id, user);
-        goalToWithdrawFrom.withdrawFromSaving(amount);
+        Savings savingsToWithdrawFrom = findSavingsByIdAndUser(Id, user);
+        savingsToWithdrawFrom.withdrawFromSaving(amount);
 
-        savingsRepository.save(goalToWithdrawFrom);
+        savingsRepository.save(savingsToWithdrawFrom);
         log.info("Withdrawal amount '{}' from saving goal Id {}", amount, Id);
-        return "Savings withdrawn successfully!";
+        return "Withdrawal from a Saving!";
     }
 
     /**
@@ -145,7 +145,7 @@ public class SavingsService {
      * @return Success Message if amount gets deposited
      */
     @Transactional
-    public String depositFromSavings(Long Id, BigDecimal amount, User user) {
+    public String depositToSavings(Long Id, BigDecimal amount, User user) {
         log.info("Depositing amount '{}' from saving goal Id {}", amount, Id);
 
         Savings goalToDeposit = findSavingsByIdAndUser(Id, user);
@@ -153,7 +153,7 @@ public class SavingsService {
 
         savingsRepository.save(goalToDeposit);
         log.info("Depositing amount '{}' from saving goal Id {}", amount, Id);
-        return "Savings deposited successfully!";
+        return "Deposited amount to Saving";
     }
 
     /**
@@ -196,7 +196,11 @@ public class SavingsService {
      */
     public List<Savings> getSavingsInProgress(User user) {
         log.info("Getting all savings for user: {} with status '{}'", user.getUsername(), Savings.SavingsStatus.IN_PROGRESS);
-        return savingsRepository.findByUserAndStatus(user,  Savings.SavingsStatus.IN_PROGRESS);
+        List<Savings> savings = savingsRepository.findByUserAndStatus(user,  Savings.SavingsStatus.IN_PROGRESS);
+        if (savings.isEmpty())
+            throw new SavingsException("No savings found for user: " + user.getUsername());
+
+        return savings; // if not empty return the list
 
     }
 
@@ -207,7 +211,11 @@ public class SavingsService {
      */
     public List<Savings> getSavingsCompleted(User user) {
         log.info("Getting all savings for user: {} with status '{}'", user.getUsername(),  Savings.SavingsStatus.COMPLETED);
-        return savingsRepository.findByUserAndStatus(user,  Savings.SavingsStatus.COMPLETED);
+        List<Savings> savings = savingsRepository.findByUserAndStatus(user,  Savings.SavingsStatus.COMPLETED);
+        if (savings.isEmpty())
+            throw new SavingsException("No savings found for user: " + user.getUsername());
+
+        return savings; // if not empty return the list
     }
 
     /**

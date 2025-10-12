@@ -79,7 +79,7 @@
     - [ ] Add category icons and better visual hierarchy
 
 ## 🎯 **PHASE 5: SAVINGS SYSTEM** 🟡 **IN PROGRESS**
-- [ ] **Backend Savings Implementation**
+- [x] **Backend Savings Implementation** ✅
     - [x] Create Savings entity with User relationship
     - [x] Implement SavingsRepository
     - [x] Build SavingsService with CRUD operations
@@ -95,7 +95,8 @@
       - [x] calculate total savings
     - [x] Create SavingsController with secure endpoints
 
-- [x] **Savings API Endpoints**
+
+- [x] **Savings API Endpoints** ✅
   - [x] `POST /api/savings/create` – Create new savings
   - [x] `GET /api/savings/my-savings` – Get all savings for the authenticated user
   - [x] `GET /api/savings/my-savings/{id}` – Get specific savings by ID
@@ -107,9 +108,24 @@
   - [x] `GET /api/savings/in-progress` – Get all savings with status **IN_PROGRESS**
   - [x] `GET /api/savings/completed` – Get all savings with status **COMPLETED**
 
+
 - [ ] **Make Test cases for savings**
-  - [ ] **Service Testings**
-  - [ ] **EndPoints Testing**
+  - [x] **Service Testings (including edge cases)** ✅
+    - [x] Create Savings Test Cases 
+    - [x] Update Savings Test Cases
+    - [x] Delete Savings Test Cases
+    - [x] Deposit/Withdraw Test Cases
+    - [x] Fetch Savings Test Cases
+    - [x] get Savings based on status (IN_PROGRESS, COMPLETED)
+    - [x] Total Savings Calculation Test Cases
+  - [ ] **Repository Testing**
+    - [ ] Create Repository Test Cases
+    - [ ] Custom Query Test Cases
+  - [ ] **Controller Testing**
+    - [ ] Create Controller Test Cases
+    - [ ] Endpoint Security Test Cases
+    - [ ] Validation Test Cases
+    - [ ] Error Handling Test Cases
 
 
 - [ ] **Frontend Savings Integration**
