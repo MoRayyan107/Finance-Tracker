@@ -15,7 +15,7 @@ import java.util.Map;
 public class GlobalExceptionHandler {
 
   @ExceptionHandler(InsufficientFundsException.class)
-  public ResponseEntity<Map<String, Object>> insufficientFundsException(InsufficientFundsException e) {
+  public ResponseEntity<Map<String, Object>> handleInsufficientFundsException(InsufficientFundsException e) {
     Map<String, Object> response = new HashMap<>();
     response.put("message", e.getMessage());
     response.put("StatusCode", HttpStatus.BAD_REQUEST.value());
@@ -26,7 +26,7 @@ public class GlobalExceptionHandler {
   }
 
   @ExceptionHandler(SavingsException.class)
-  public ResponseEntity<Map<String, Object>> SavingsException(SavingsException e) {
+  public ResponseEntity<Map<String, Object>> handleSavingsException(SavingsException e) {
     Map<String, Object> response = new HashMap<>();
     response.put("message", e.getMessage());
     response.put("StatusCode", HttpStatus.BAD_REQUEST.value());
@@ -37,7 +37,7 @@ public class GlobalExceptionHandler {
   }
 
   @ExceptionHandler(InvalidAmountException.class)
-  public ResponseEntity<Map<String, Object>> InvalidAmountException(InvalidAmountException e) {
+  public ResponseEntity<Map<String, Object>> handleInvalidAmountException(InvalidAmountException e) {
     Map<String, Object> response = new HashMap<>();
     response.put("message", e.getMessage());
     response.put("StatusCode", HttpStatus.FORBIDDEN.value());

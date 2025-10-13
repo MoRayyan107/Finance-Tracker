@@ -1,7 +1,9 @@
 package com.rayyan.finance_tracker.controllers;
 
+import com.rayyan.finance_tracker.entity.AmountRequest;
 import com.rayyan.finance_tracker.entity.Savings;
 import com.rayyan.finance_tracker.entity.User;
+import com.rayyan.finance_tracker.exceptions.ValidationException;
 import com.rayyan.finance_tracker.service.SavingsService;
 import com.rayyan.finance_tracker.service.UserDetailService;
 import lombok.AllArgsConstructor;
@@ -76,23 +78,29 @@ public class SavingsController {
     /**
      * deposits money to savings
      * @param id the savings Id to deposit to
-     * @param amount the amount to deposit
+     * @param amountRequest the amount request containing the amount to deposit
      * @return Success Message if deposited
      */
     @PostMapping("/{id}/deposit")
-    public String depositIntoSavings(@PathVariable Long id, @RequestBody BigDecimal amount) {
-        return savingsService.depositToSavings(id, amount, getCurrentUser());
+    public String depositIntoSavings(@PathVariable Long id, @RequestBody AmountRequest amountRequest) {
+        if (amountRequest == null || amountRequest.getAmount() == null) {
+            throw new ValidationException("Amount is required");
+        }
+        return savingsService.depositToSavings(id, amountRequest.getAmount(), getCurrentUser());
     }
 
     /**
      * withdrawals money from a saving
      * @param id the savings Id to withdrawal from
-     * @param amount the amount to withdrawal
+     * @param amountRequest the amount request containing the amount to withdrawal
      * @return Success Message if withdrawal
      */
     @PostMapping("/{id}/withdraw")
-    public String withdrawFromSavings(@PathVariable Long id, @RequestBody BigDecimal amount) {
-        return  savingsService.withdrawFromSavings(id, amount, getCurrentUser());
+    public String withdrawFromSavings(@PathVariable Long id, @RequestBody AmountRequest amountRequest) {
+        if (amountRequest == null || amountRequest.getAmount() == null) {
+            throw new ValidationException("Amount is required");
+        }
+        return  savingsService.withdrawFromSavings(id, amountRequest.getAmount(), getCurrentUser());
     }
 
     /**

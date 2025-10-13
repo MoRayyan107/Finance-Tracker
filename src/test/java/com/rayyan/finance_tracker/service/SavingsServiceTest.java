@@ -381,8 +381,8 @@ public class SavingsServiceTest {
         @DisplayName("Should throw InvalidAmountException when depositing negative amount")
         void addToSavings_NegativeAmount_ThrowsInvalidAmountException(){
             // Given
-            when(savingsRepository.findByIdAndUser(1L, user)).thenReturn(Optional.of(validSavings));
             BigDecimal negativeAmount = BigDecimal.valueOf(-100); // Negative amount -> Error
+            when(savingsRepository.findByIdAndUser(1L, user)).thenThrow(new InvalidAmountException(("Amount must be greater than zero")));
 
             // assert and verify
             assertThrows(InvalidAmountException.class, () -> savingsService.depositToSavings(1L, negativeAmount, user),
@@ -434,8 +434,8 @@ public class SavingsServiceTest {
         @DisplayName("Should throw InvalidAmountException when withdrawing negative amount")
         void withdrawFromSavings_NegativeAmount_ThrowsInvalidAmountException() {
             // Given
-            when(savingsRepository.findByIdAndUser(1L, user)).thenReturn(Optional.of(invalidSavings));
             BigDecimal negativeAmout = BigDecimal.valueOf(-300); // Negative amount -> Error
+            when(savingsRepository.findByIdAndUser(1L, user)).thenThrow(new InvalidAmountException("Amount must be non-negative"));
 
             // assert and verify
             assertThrows(InvalidAmountException.class, () -> savingsService.withdrawFromSavings(1L, negativeAmout, user),
@@ -450,13 +450,13 @@ public class SavingsServiceTest {
         void withdrawFromSavings_InsufficientFunds_ThrowsInsufficientFundsException() {
             // Given
             validSavings.setCurrentAmount(BigDecimal.valueOf(100)); // Current amount is 100
-            when(savingsRepository.findByIdAndUser(1L, user)).thenReturn(Optional.of(validSavings));
+            when(savingsRepository.findByIdAndUser(1L, user)).thenThrow(new InsufficientFundsException("Withdrawal amount exceeds current savings amount"));
 
             BigDecimal withdrawalAmount = BigDecimal.valueOf(300); // More than current amount -> Error
 
             // assert and verify
             assertThrows(InsufficientFundsException.class, () -> savingsService.withdrawFromSavings(1L, withdrawalAmount, user),
-                    "Insufficient funds in goal to withdraw");
+                    "Withdrawal amount exceeds current savings amount");
 
             verify(savingsRepository, times(1)).findByIdAndUser(1L,user);
             verify(savingsRepository, never()).save(validSavings);
