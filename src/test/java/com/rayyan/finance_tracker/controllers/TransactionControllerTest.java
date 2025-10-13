@@ -115,7 +115,7 @@ public class TransactionControllerTest {
         doNothing().when(transactionService).createTransaction(any(Transaction.class));
 
         // Act
-        mockMvc.perform(post("/api/transaction/create")
+        mockMvc.perform(post(CREATE_TRANSACTION_API)
                 .contentType(MediaType.APPLICATION_JSON)
                 .content(objectMapper.writeValueAsString(validTransactionSalary)))
                 .andExpect(status().isOk())
@@ -134,7 +134,7 @@ public class TransactionControllerTest {
         doThrow(new ValidationException("Invalid transaction")).when(transactionService).createTransaction(any(Transaction.class));
 
         // Act
-        mockMvc.perform(post("/api/transaction/create")
+        mockMvc.perform(post(CREATE_TRANSACTION_API)
                 .contentType(MediaType.APPLICATION_JSON)
                 .content(objectMapper.writeValueAsString(invalidTransaction)))
                 .andExpect(status().isBadRequest())
@@ -155,7 +155,7 @@ public class TransactionControllerTest {
         when(transactionService.findTransactionsByUser(any(User.class))).thenReturn(transactions);
 
         // Act
-        mockMvc.perform(get("/api/transaction/fetchAll"))
+        mockMvc.perform(get(FETCH_ALL_TRANSACTIONS_API))
                 .andExpect(status().isOk())
                 .andExpect(jsonPath("$.length()").value(transactions.size()))
                 .andExpect(jsonPath("$[0].description").value("test transaction salary"))
@@ -174,7 +174,7 @@ public class TransactionControllerTest {
         when(transactionService.findTransactionsByUser(any(User.class))).thenThrow(new TransactionNotFoundException("No transactions found"));
 
         // Act
-        mockMvc.perform(get("/api/transaction/fetchAll"))
+        mockMvc.perform(get(FETCH_ALL_TRANSACTIONS_API))
                 .andExpect(status().isNotFound())
                 .andExpect(jsonPath("$.error").value("Transaction not found"))
                 .andExpect(jsonPath("$.message").value("No transactions found"));
@@ -192,7 +192,7 @@ public class TransactionControllerTest {
         when(transactionService.getTransactionByIdAndUser(eq(1L), any(User.class))).thenReturn(validTransactionSalary);
 
         // Act
-        mockMvc.perform(get("/api/transaction/1"))
+        mockMvc.perform(get(FETCH_TRANSACTION_BY_ID_API, 1L))
                 .andExpect(status().isOk())
                 .andExpect(jsonPath("$.description").value("test transaction salary"));
 
@@ -209,7 +209,7 @@ public class TransactionControllerTest {
         when(transactionService.getTransactionByIdAndUser(eq(1L), any(User.class))).thenThrow(new TransactionNotFoundException("Transaction not found"));
 
         // Act
-        mockMvc.perform(get("/api/transaction/1"))
+        mockMvc.perform(get(FETCH_TRANSACTION_BY_ID_API, 1L))
                 .andExpect(status().isNotFound())
                 .andExpect(jsonPath("$.error").value("Transaction not found"))
                 .andExpect(jsonPath("$.message").value("Transaction not found"));
@@ -227,7 +227,7 @@ public class TransactionControllerTest {
         when(transactionService.updateTransaction(eq(1L), any(Transaction.class), any(User.class))).thenReturn("Transaction Successfully updated");
 
         // Act
-        mockMvc.perform(put("/api/transaction/update/1")
+        mockMvc.perform(put(UPDATE_TRANSACTION_API, 1L)
                 .contentType(MediaType.APPLICATION_JSON)
                 .content(objectMapper.writeValueAsString(updatedTransaction)))
                 .andExpect(status().isOk())
@@ -247,7 +247,7 @@ public class TransactionControllerTest {
                 .thenThrow(new TransactionNotFoundException("Transaction not found"));
 
         // Act
-        mockMvc.perform(put("/api/transaction/update/1")
+        mockMvc.perform(put(UPDATE_TRANSACTION_API, 1L)
                 .contentType(MediaType.APPLICATION_JSON)
                 .content(objectMapper.writeValueAsString(updatedTransaction)))
                 .andExpect(status().isNotFound())
@@ -268,7 +268,7 @@ public class TransactionControllerTest {
                 .thenThrow(new ValidationException("Validation failed"));
 
         // Act
-        mockMvc.perform(put("/api/transaction/update/1")
+        mockMvc.perform(put(UPDATE_TRANSACTION_API, 1L)
                 .contentType(MediaType.APPLICATION_JSON)
                 .content(objectMapper.writeValueAsString(updatedTransaction)))
                 .andExpect(status().isBadRequest())
@@ -288,7 +288,7 @@ public class TransactionControllerTest {
         when(transactionService.deleteTransaction(eq(1L), any(User.class))).thenReturn("Transaction Successfully deleted");
 
         // Act
-        mockMvc.perform(delete("/api/transaction/delete/1"))
+        mockMvc.perform(delete(DELETE_TRANSACTION_API,1L))
                 .andExpect(status().isOk())
                 .andExpect(content().string("Transaction Successfully deleted"));
 
@@ -306,7 +306,7 @@ public class TransactionControllerTest {
                 .thenThrow(new TransactionNotFoundException("Transaction not found"));
 
         // Act
-        mockMvc.perform(delete("/api/transaction/delete/1"))
+        mockMvc.perform(delete(DELETE_TRANSACTION_API,1L))
                 .andExpect(status().isNotFound())
                 .andExpect(jsonPath("$.error").value("Transaction not found"))
                 .andExpect(jsonPath("$.message").value("Transaction not found"));
