@@ -98,7 +98,7 @@ public class Savings {
      * @throws InvalidAmountException if the amount is <= 0
      */
     public void addToSavings(BigDecimal amountToAdd) {
-        if (amountToAdd.compareTo(BigDecimal.ZERO) <= 0) {
+        if (amountToAdd == null || amountToAdd.compareTo(BigDecimal.ZERO) <= 0) {
             throw new InvalidAmountException("Amount must be greater than zero");
         }
         this.currentAmount = currentAmount.add(amountToAdd);
@@ -110,15 +110,15 @@ public class Savings {
      * Withdraws funds from the goal.
      *
      * @param amountToWithdraw amount to withdraw
-     * @throws InvalidAmountException     if amount < 0
+     * @throws InvalidAmountException     if amount <= 0
      * @throws InsufficientFundsException if withdrawal > current balance
      */
     public void withdrawFromSaving(BigDecimal amountToWithdraw) {
-        if (amountToWithdraw.compareTo(BigDecimal.ZERO) < 0) {
-            throw new InvalidAmountException("Amount must be non-negative");
+        if (amountToWithdraw == null || amountToWithdraw.compareTo(BigDecimal.ZERO) <= 0) {
+            throw new InvalidAmountException("Amount must be greater than zero");
         }
         if (this.currentAmount.compareTo(amountToWithdraw) < 0) {
-            throw new InsufficientFundsException("Insufficient funds in goal to withdraw");
+            throw new InsufficientFundsException("Withdrawal amount exceeds current savings amount");
         }
 
         this.currentAmount = currentAmount.subtract(amountToWithdraw);
@@ -165,4 +165,3 @@ public class Savings {
         updateStatus();
     }
 }
-

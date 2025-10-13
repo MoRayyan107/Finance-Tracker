@@ -66,6 +66,32 @@ public class TestConstants {
     // Dummy JWT Secret Key
     public static final String DUMMY_JWT_SECRET_KEY = "404E635266556A586E3272357538782F413F4428472B4B6250645367566B5970";
 
+    /* ***************************************************************************
+     * Constants for API's
+     * ************************************************************************** */
+
+    // Savings API's
+    public static final String CREATE_SAVINGS_API = "/api/savings/create";
+    public static final String GET_ALL_SAVINGS_API = "/api/savings/my-savings";
+    public static final String GET_SAVING_BY_ID_API = "/api/savings/my-savings/{id}";
+    public static final String UPDATE_SAVINGS_API = "/api/savings/update/{id}";
+    public static final String DEPOSIT_SAVINGS_API = "/api/savings/{id}/deposit";
+    public static final String WITHDRAW_SAVINGS_API = "/api/savings/{id}/withdraw";
+    public static final String DELETE_SAVINGS_API = "/api/savings/delete/{id}";
+    public static final String GET_TOTAL_SAVINGS_API = "/api/savings/total-savings";
+    public static final String GET_INPROGRESS_SAVINGS_API = "/api/savings/in-progress";
+    public static final String GET_COMPLETED_SAVINGS_API = "/api/savings/completed";
+
+    // Auth API's
+
+    // Register API
+
+    // Transaction API's
+
+    /* ***************************************************************************
+     * End of Constants for API's
+     * ************************************************************************** */
+
     // prevention instantiation
     private TestConstants() {
         throw new AssertionError("Cannot instantiate constants class");

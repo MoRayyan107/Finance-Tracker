@@ -118,9 +118,6 @@
     - [x] Fetch Savings Test Cases
     - [x] get Savings based on status (IN_PROGRESS, COMPLETED)
     - [x] Total Savings Calculation Test Cases
-  - [ ] **Repository Testing**
-    - [ ] Create Repository Test Cases
-    - [ ] Custom Query Test Cases
   - [ ] **Controller Testing**
     - [ ] Create Controller Test Cases
     - [ ] Endpoint Security Test Cases

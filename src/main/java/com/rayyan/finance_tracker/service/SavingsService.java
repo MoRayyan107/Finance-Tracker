@@ -2,6 +2,8 @@ package com.rayyan.finance_tracker.service;
 
 import com.rayyan.finance_tracker.entity.Savings;
 import com.rayyan.finance_tracker.entity.User;
+import com.rayyan.finance_tracker.exceptions.InsufficientFundsException;
+import com.rayyan.finance_tracker.exceptions.InvalidAmountException;
 import com.rayyan.finance_tracker.exceptions.SavingsException;
 import com.rayyan.finance_tracker.exceptions.ValidationException;
 import com.rayyan.finance_tracker.repository.SavingsRepository;
@@ -130,7 +132,11 @@ public class SavingsService {
         log.info("Withdrawing amount '{}' from saving goal Id {}", amount, Id);
 
         Savings savingsToWithdrawFrom = findSavingsByIdAndUser(Id, user);
-        savingsToWithdrawFrom.withdrawFromSaving(amount);
+        try {
+            savingsToWithdrawFrom.withdrawFromSaving(amount);
+        } catch (InvalidAmountException | InsufficientFundsException e) {
+            throw new ValidationException(e.getMessage());
+        }
 
         savingsRepository.save(savingsToWithdrawFrom);
         log.info("Withdrawal amount '{}' from saving goal Id {}", amount, Id);
@@ -149,7 +155,11 @@ public class SavingsService {
         log.info("Depositing amount '{}' from saving goal Id {}", amount, Id);
 
         Savings goalToDeposit = findSavingsByIdAndUser(Id, user);
-        goalToDeposit.addToSavings(amount);
+        try {
+            goalToDeposit.addToSavings(amount);
+        } catch (InvalidAmountException e) {
+            throw new ValidationException(e.getMessage());
+        }
 
         savingsRepository.save(goalToDeposit);
         log.info("Depositing amount '{}' from saving goal Id {}", amount, Id);
