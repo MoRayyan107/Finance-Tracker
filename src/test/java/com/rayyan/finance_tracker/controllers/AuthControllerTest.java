@@ -64,12 +64,12 @@ public class AuthControllerTest {
 
                 when(authenticationService.register(any(RegisterRequest.class))).thenReturn(auth);
 
-                mockMvc.perform(post("/api/auth/register")
+                mockMvc.perform(post(REGISTER_API)
                                 .contentType(MediaType.APPLICATION_JSON)
                                 .content(objectMapper.writeValueAsString(validRegister)))
-                                .andExpect(status().isOk())
-                                .andExpect(content().contentType(MediaType.APPLICATION_JSON))
-                                .andExpect(jsonPath("$.jwtToken").value(DUMMY_JWT_TOKEN));
+                        .andExpect(status().isOk())
+                        .andExpect(content().contentType(MediaType.APPLICATION_JSON))
+                        .andExpect(jsonPath("$.jwtToken").value(DUMMY_JWT_TOKEN));
 
                 test_Passes.put(1, "Register: Valid Credentials Success");
 
@@ -86,7 +86,7 @@ public class AuthControllerTest {
                 when(authenticationService.register(any(RegisterRequest.class)))
                                 .thenThrow(new ValidationException("Username can't be null or empty"));
 
-                mockMvc.perform(post("/api/auth/register")
+                mockMvc.perform(post(REGISTER_API)
                                 .contentType(MediaType.APPLICATION_JSON)
                                 .content(objectMapper.writeValueAsString(invalidRegister)))
                                 .andExpectAll(
@@ -109,7 +109,7 @@ public class AuthControllerTest {
                 when(authenticationService.register(any(RegisterRequest.class)))
                                 .thenThrow(new ValidationException("Username can't be less than 4 characters"));
 
-                mockMvc.perform(post("/api/auth/register")
+                mockMvc.perform(post(REGISTER_API)
                                 .contentType(MediaType.APPLICATION_JSON)
                                 .content(objectMapper.writeValueAsString(invalidRegister)))
                                 .andExpect(status().isBadRequest())
@@ -132,7 +132,7 @@ public class AuthControllerTest {
                 when(authenticationService.register(any(RegisterRequest.class)))
                                 .thenThrow(new ValidationException("Username can't be more than 20 characters"));
 
-                mockMvc.perform(post("/api/auth/register")
+                mockMvc.perform(post(REGISTER_API)
                                 .contentType(MediaType.APPLICATION_JSON)
                                 .content(objectMapper.writeValueAsString(invalidRegister)))
                                 .andExpectAll(
@@ -157,7 +157,7 @@ public class AuthControllerTest {
                 when(authenticationService.register(any(RegisterRequest.class)))
                                 .thenThrow(new ValidationException("Password can't be null or empty"));
 
-                mockMvc.perform(post("/api/auth/register")
+                mockMvc.perform(post(REGISTER_API)
                                 .contentType(MediaType.APPLICATION_JSON)
                                 .content(objectMapper.writeValueAsString(invalidRegister)))
                                 .andExpectAll(
@@ -180,7 +180,7 @@ public class AuthControllerTest {
                 when(authenticationService.register(any(RegisterRequest.class)))
                                 .thenThrow(new ValidationException("Password can't be less than 8 characters"));
 
-                mockMvc.perform(post("/api/auth/register")
+                mockMvc.perform(post(REGISTER_API)
                                 .contentType(MediaType.APPLICATION_JSON)
                                 .content(objectMapper.writeValueAsString(invalidRegister)))
                                 .andExpectAll(
@@ -204,7 +204,7 @@ public class AuthControllerTest {
                 when(authenticationService.register(any(RegisterRequest.class)))
                                 .thenThrow(new ValidationException("Password can't be more than 50 characters"));
 
-                mockMvc.perform(post("/api/auth/register")
+                mockMvc.perform(post(REGISTER_API)
                                 .contentType(MediaType.APPLICATION_JSON)
                                 .content(objectMapper.writeValueAsString(invalidRegister)))
                                 .andExpectAll(
@@ -236,7 +236,7 @@ public class AuthControllerTest {
 
                 when(authenticationService.authenticate(any(AuthenticationRequest.class))).thenReturn(auth);
 
-                mockMvc.perform(post("/api/auth/login")
+                mockMvc.perform(post(LOGIN_API)
                                 .contentType(MediaType.APPLICATION_JSON)
                                 .content(objectMapper.writeValueAsString(validLogin)))
                                 .andExpect(status().isOk())
@@ -258,7 +258,7 @@ public class AuthControllerTest {
                 when(authenticationService.authenticate(any(AuthenticationRequest.class)))
                                 .thenThrow(new ValidationException("Username can't be null or empty"));
 
-                mockMvc.perform(post("/api/auth/login")
+                mockMvc.perform(post(LOGIN_API)
                                 .contentType(MediaType.APPLICATION_JSON)
                                 .content(objectMapper.writeValueAsString(invalidLogin)))
                                 .andExpectAll(
@@ -281,7 +281,7 @@ public class AuthControllerTest {
                 when(authenticationService.authenticate(any(AuthenticationRequest.class)))
                                 .thenThrow(new ValidationException("Username can't be less than 4 characters"));
 
-                mockMvc.perform(post("/api/auth/login")
+                mockMvc.perform(post(LOGIN_API)
                                 .contentType(MediaType.APPLICATION_JSON)
                                 .content(objectMapper.writeValueAsString(invalidLogin)))
                                 .andExpect(status().isBadRequest())
@@ -304,7 +304,7 @@ public class AuthControllerTest {
                 when(authenticationService.authenticate(any(AuthenticationRequest.class)))
                                 .thenThrow(new ValidationException("Username can't be more than 20 characters"));
 
-                mockMvc.perform(post("/api/auth/login")
+                mockMvc.perform(post(LOGIN_API)
                                 .contentType(MediaType.APPLICATION_JSON)
                                 .content(objectMapper.writeValueAsString(invalidLogin)))
                                 .andExpectAll(
@@ -329,7 +329,7 @@ public class AuthControllerTest {
                 when(authenticationService.authenticate(any(AuthenticationRequest.class)))
                                 .thenThrow(new ValidationException("Password can't be null or empty"));
 
-                mockMvc.perform(post("/api/auth/login")
+                mockMvc.perform(post(LOGIN_API)
                                 .contentType(MediaType.APPLICATION_JSON)
                                 .content(objectMapper.writeValueAsString(invalidLogin)))
                                 .andExpectAll(
@@ -352,7 +352,7 @@ public class AuthControllerTest {
                 when(authenticationService.authenticate(any(AuthenticationRequest.class)))
                                 .thenThrow(new ValidationException("Password can't be less than 8 characters"));
 
-                mockMvc.perform(post("/api/auth/login")
+                mockMvc.perform(post(LOGIN_API)
                                 .contentType(MediaType.APPLICATION_JSON)
                                 .content(objectMapper.writeValueAsString(invalidLogin)))
                                 .andExpectAll(
@@ -376,7 +376,7 @@ public class AuthControllerTest {
                 when(authenticationService.authenticate(any(AuthenticationRequest.class)))
                                 .thenThrow(new ValidationException("Password can't be more than 50 characters"));
 
-                mockMvc.perform(post("/api/auth/login")
+                mockMvc.perform(post(LOGIN_API)
                                 .contentType(MediaType.APPLICATION_JSON)
                                 .content(objectMapper.writeValueAsString(invalidLogin)))
                                 .andExpectAll(

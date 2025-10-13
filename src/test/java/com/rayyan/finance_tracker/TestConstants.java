@@ -83,10 +83,15 @@ public class TestConstants {
     public static final String GET_COMPLETED_SAVINGS_API = "/api/savings/completed";
 
     // Auth API's
-
-    // Register API
+    public static final String LOGIN_API = "/api/auth/login"; // Login API
+    public static final String REGISTER_API = "/api/auth/register"; // Registration API
 
     // Transaction API's
+    public static final String CREATE_TRANSACTION_API = "/api/transaction/create";
+    public static final String FETCH_ALL_TRANSACTIONS_API = "/api/transaction/fetchAll";
+    public static final String FETCH_TRANSACTION_BY_ID_API = "/api/transaction/{id}";
+    public static final String UPDATE_TRANSACTION_API = "/api/transaction/update/{id}";
+    public static final String DELETE_TRANSACTION_API = "/api/transaction/delete/{id}";
 
     /* ***************************************************************************
      * End of Constants for API's
