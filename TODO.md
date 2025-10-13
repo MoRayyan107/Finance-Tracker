@@ -109,7 +109,7 @@
   - [x] `GET /api/savings/completed` – Get all savings with status **COMPLETED**
 
 
-- [ ] **Make Test cases for savings**
+- [x] **Make Test cases for savings**
   - [x] **Service Testings (including edge cases)** ✅
     - [x] Create Savings Test Cases 
     - [x] Update Savings Test Cases
@@ -118,14 +118,11 @@
     - [x] Fetch Savings Test Cases
     - [x] get Savings based on status (IN_PROGRESS, COMPLETED)
     - [x] Total Savings Calculation Test Cases
-  - [ ] **Repository Testing**
-    - [ ] Create Repository Test Cases
-    - [ ] Custom Query Test Cases
-  - [ ] **Controller Testing**
-    - [ ] Create Controller Test Cases
-    - [ ] Endpoint Security Test Cases
-    - [ ] Validation Test Cases
-    - [ ] Error Handling Test Cases
+  - [x] **Controller Testing**
+    - [x] Create Controller Test Cases
+    - [x] Endpoint Security Test Cases
+    - [x] Validation Test Cases
+    - [x] Error Handling Test Cases
 
 
 - [ ] **Frontend Savings Integration**
