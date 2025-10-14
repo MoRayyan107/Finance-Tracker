@@ -1,19 +1,72 @@
-// Dashboard JavaScript
+// ========== AUTHENTICATION ==========
+function getToken() {
+    return localStorage.getItem('jwtToken');
+}
 
-document.addEventListener("DOMContentLoaded", () => {
-    loadUserInfo();
-    loadTransactions();
-    loadSavingsGoals();
+// ========== FORMATTING HELPERS ==========
+const currencyFormatter = new Intl.NumberFormat('en-US', {
+    style: 'currency',
+    currency: 'USD',
+    minimumFractionDigits: 2,
+    maximumFractionDigits: 2,
+});
+const currencyFormatterCompact = new Intl.NumberFormat('en-US', {
+    style: 'currency',
+    currency: 'USD',
+    notation: 'compact',
+    maximumFractionDigits: 1,
+});
+function formatCurrency(value) {
+    const n = Number(value);
+    return currencyFormatter.format(Number.isFinite(n) ? n : 0);
+}
+function formatCurrencyCompact(value) {
+    const n = Number(value);
+    return currencyFormatterCompact.format(Number.isFinite(n) ? n : 0);
+}
+function formatPercent(value, digits = 0) {
+    const n = Number(value);
+    return `${Number.isFinite(n) ? n.toFixed(digits) : '0'}%`;
+}
 
-    // Goal form submission
-    const goalForm = document.getElementById('goal-form');
-    if (goalForm) {
-        goalForm.addEventListener('submit', handleGoalSubmit);
+// ========== MENU TOGGLE ==========
+function toggleMenu() {
+    const menu = document.getElementById('dropdownMenu');
+    menu.classList.toggle('active');
+}
+
+// Close menu when clicking outside
+document.addEventListener('click', (e) => {
+    const menu = document.getElementById('dropdownMenu');
+    const hamburger = document.querySelector('.hamburger-btn');
+    if (!menu.contains(e.target) && !hamburger.contains(e.target)) {
+        menu.classList.remove('active');
     }
 });
 
-function getToken() {
-    return localStorage.getItem('jwtToken');
+// ========== MENU FUNCTIONS ==========
+function openProfile(event) {
+    event.preventDefault();
+    alert('Profile page coming soon!');
+    document.getElementById('dropdownMenu').classList.remove('active');
+}
+
+function openSettings(event) {
+    event.preventDefault();
+    alert('Settings page coming soon!');
+    document.getElementById('dropdownMenu').classList.remove('active');
+}
+
+function openReports(event) {
+    event.preventDefault();
+    alert('Financial Reports page coming soon!');
+    document.getElementById('dropdownMenu').classList.remove('active');
+}
+
+function changePassword(event) {
+    event.preventDefault();
+    alert('Change Password page coming soon!');
+    document.getElementById('dropdownMenu').classList.remove('active');
 }
 
 function logout() {
@@ -21,6 +74,24 @@ function logout() {
     window.location.href = '/login';
 }
 
+// ========== ACTION BUTTONS ==========
+function addTransaction(event) {
+    event.preventDefault();
+    const modal = document.getElementById('addTransactionModal');
+    if (modal) modal.style.display = 'flex';
+}
+
+function closeTransactionForm() {
+    const modal = document.getElementById('addTransactionModal');
+    if (modal) modal.style.display = 'none';
+}
+
+function viewAllTransactions(event) {
+    event.preventDefault();
+    window.location.href = '/transactions';
+}
+
+// ========== DATA LOADING ==========
 function loadUserInfo() {
     const token = getToken();
     if (!token) {
@@ -28,20 +99,13 @@ function loadUserInfo() {
         return;
     }
 
-    fetch('/api/auth/me', {
-        headers: {
-            'Authorization': `Bearer ${token}`
-        }
-    })
-    .then(response => response.json())
-    .then(user => {
-        document.getElementById('username-display').textContent = user.username;
-        document.getElementById('email-display').textContent = user.email;
-    })
-    .catch(error => {
-        console.error('Error loading user info:', error);
-        logout();
-    });
+    // Get username from JWT or API
+    try {
+        const payload = JSON.parse(atob(token.split('.')[1]));
+        document.getElementById('username').textContent = payload.sub || 'User';
+    } catch (e) {
+        console.error('Error parsing token:', e);
+    }
 }
 
 function loadTransactions() {
@@ -51,198 +115,309 @@ function loadTransactions() {
             'Authorization': `Bearer ${token}`
         }
     })
-    .then(response => response.json())
-    .then(transactions => {
-        displayTransactions(transactions);
-        calculateSummary(transactions);
-    })
-    .catch(error => {
-        console.error('Error loading transactions:', error);
-    });
+        .then(response => {
+            if (!response.ok) throw new Error('Failed to fetch transactions');
+            return response.json();
+        })
+        .then(transactions => {
+            displayTransactions(transactions);
+            calculateSummary(transactions);
+            updateChart(transactions);
+        })
+        .catch(error => {
+            console.error('Error loading transactions:', error);
+            document.getElementById('transactionList').innerHTML =
+                '<div class="loading">Error loading transactions</div>';
+        });
 }
 
 function displayTransactions(transactions) {
-    const loadingMessage = document.getElementById('loading-message');
-    const table = document.getElementById('transactions-table');
-    const tbody = document.getElementById('transactions-body');
-    const noTransactions = document.getElementById('no-transactions');
-
-    loadingMessage.style.display = 'none';
+    const container = document.getElementById('transactionList');
 
     if (transactions.length === 0) {
-        noTransactions.style.display = 'block';
+        container.innerHTML = '<div class="loading">No transactions yet</div>';
         return;
     }
 
-    table.style.display = 'table';
-    tbody.innerHTML = '';
-
-    transactions.forEach(transaction => {
-        const row = document.createElement('tr');
-        row.innerHTML = `
-            <td>${new Date(transaction.date).toLocaleDateString()}</td>
-            <td>${transaction.description}</td>
-            <td>${transaction.amount}</td>
-            <td>${transaction.type}</td>
-            <td>${transaction.category}</td>
-        `;
-        tbody.appendChild(row);
-    });
+    const recent = transactions.slice(0, 5);
+    container.innerHTML = recent.map(t => `
+            <div class="transaction-item">
+                <div class="transaction-info">
+                    <div class="transaction-desc">${t.description}</div>
+                    <div class="transaction-date">${new Date(t.date).toLocaleDateString()}</div>
+                    <span class="transaction-category">${t.category}</span>
+                </div>
+                <div class="transaction-amount ${t.transactionType === 'INCOME' ? 'income' : 'expense'}">
+                    ${t.transactionType === 'INCOME' ? '+' : '-'}${formatCurrency(Math.abs(t.amount))}
+                </div>
+            </div>
+        `).join('');
 }
 
 function calculateSummary(transactions) {
     let totalIncome = 0;
     let totalExpenses = 0;
 
-    transactions.forEach(transaction => {
-        if (transaction.type === 'INCOME') {
-            totalIncome += transaction.amount;
-        } else if (transaction.type === 'EXPENSE') {
-            totalExpenses += transaction.amount;
+    transactions.forEach(t => {
+        if (t.transactionType === 'INCOME') {
+            totalIncome += parseFloat(t.amount);
+        } else {
+            totalExpenses += parseFloat(t.amount);
         }
     });
 
     const balance = totalIncome - totalExpenses;
+    const savingsRate = totalIncome > 0 ? (balance / totalIncome) * 100 : 0;
 
-    document.getElementById('total-income').textContent = `$${totalIncome.toFixed(2)}`;
-    document.getElementById('total-expenses').textContent = `$${totalExpenses.toFixed(2)}`;
-    document.getElementById('balance').textContent = `$${balance.toFixed(2)}`;
+    document.getElementById('totalIncome').textContent = formatCurrencyCompact(totalIncome);
+    document.getElementById('totalExpenses').textContent = formatCurrencyCompact(totalExpenses);
+    document.getElementById('netBalance').textContent = formatCurrencyCompact(balance);
+    document.getElementById('savingsRate').textContent = formatPercent(savingsRate, 1);
+
+    document.getElementById('incomeChange').textContent = `Total: ${formatCurrency(totalIncome)}`;
+    document.getElementById('expensesChange').textContent = `Total: ${formatCurrency(totalExpenses)}`;
+    document.getElementById('balanceChange').textContent = balance > 0 ? '✓ Positive balance!' : '⚠ Deficit';
 }
 
-function addTransaction() {
-    // Placeholder for add transaction functionality
-    alert('Add transaction functionality not implemented yet');
+function updateChart(transactions) {
+    let totalIncome = 0;
+    let totalExpenses = 0;
+
+    transactions.forEach(t => {
+        if (t.transactionType === 'INCOME') {
+            totalIncome += parseFloat(t.amount);
+        } else {
+            totalExpenses += parseFloat(t.amount);
+        }
+    });
+
+    const total = totalIncome + totalExpenses;
+    const expensePercent = total > 0 ? ((totalExpenses / total) * 100).toFixed(0) : 0;
+    const incomePercent = 100 - expensePercent;
+
+    document.getElementById('expensePercent').textContent = expensePercent;
+    document.getElementById('incomePercent').textContent = incomePercent;
+
+    const expenseDegrees = (expensePercent / 100) * 360;
+    document.getElementById('pieChart').style.background =
+        `conic-gradient(#e74c3c 0deg ${expenseDegrees}deg, #2ecc71 ${expenseDegrees}deg 360deg)`;
 }
 
-function loadSavingsGoals() {
+function loadSavings() {
     const token = getToken();
-    fetch('/api/savings', {
+    fetch('/api/savings/my-savings', {
         headers: {
             'Authorization': `Bearer ${token}`
         }
     })
-    .then(response => response.json())
-    .then(goals => {
-        displaySavingsGoals(goals);
-    })
-    .catch(error => {
-        console.error('Error loading savings goals:', error);
-    });
+        .then(response => {
+            if (!response.ok) throw new Error('Failed to fetch savings');
+            return response.json();
+        })
+        .then(savings => {
+            displaySavings(savings);
+        })
+        .catch(error => {
+            console.error('Error loading savings:', error);
+            document.getElementById('savingsGrid').innerHTML =
+                '<div class="loading">Error loading savings</div>';
+        });
 }
 
-function displaySavingsGoals(goals) {
-    const container = document.getElementById('goals-container');
-    container.innerHTML = '';
+function addSavings(event) {
+    event.preventDefault();
+    const modal = document.getElementById('addSavingsModal');
+    if (modal) modal.style.display = 'flex';
+}
 
-    if (goals.length === 0) {
-        container.innerHTML = '<p>No savings goals found. Create your first goal!</p>';
+function closeSavingsForm() {
+    const modal = document.getElementById('addSavingsModal');
+    if (modal) modal.style.display = 'none';
+}
+
+function displaySavings(savings) {
+    const container = document.getElementById('savingsGrid');
+
+    if (savings.length === 0) {
+        container.innerHTML = '<div class="loading">No savings yet. Create your first saving!';
         return;
     }
 
-    goals.forEach(goal => {
-        const goalDiv = document.createElement('div');
-        goalDiv.className = 'goal-item';
-        goalDiv.innerHTML = `
-            <h4>${goal.goalName}</h4>
-            <p>${goal.goalDescription}</p>
-            <p>Current: $${goal.currentAmount} / Target: $${goal.targetAmount}</p>
-            <p>Status: ${goal.status}</p>
-            <div class="progress-bar">
-                <div class="progress-fill" style="width: ${goal.completion}%"></div>
-            </div>
-            <button onclick="addToGoal(${goal.id})">Add Funds</button>
-            <button onclick="withdrawFromGoal(${goal.id})">Withdraw</button>
-            <button onclick="deleteGoal(${goal.id})">Delete</button>
-        `;
-        container.appendChild(goalDiv);
-    });
+    container.innerHTML = savings.map(saving => {
+        const progressPercent = saving.targetAmount > 0
+            ? (saving.currentAmount / saving.targetAmount) * 100
+            : 0;
+
+        const isCompleted = saving.status === 'COMPLETED';
+        const statusEmoji = isCompleted ? '✅' : '🟡';
+        const progressClass = isCompleted ? 'completed' : 'in-progress';
+        const savingsItemClass = isCompleted ? 'completed' : 'in-progress';
+
+        return `
+                <div class="savings-item ${savingsItemClass}">
+                    <div class="savings-header">
+                        <span class="savings-name">${saving.savingsName}</span>
+                        <span class="savings-status">${statusEmoji}</span>
+                    </div>
+                    <div class="savings-progress">
+                        <div class="progress-bar">
+                            <div class="progress-fill ${progressClass}" style="width: ${Math.min(progressPercent, 100)}%"></div>
+                        </div>
+                        <div class="savings-amount">
+                            <span class="amount-current">${formatCurrency(saving.currentAmount)}</span>
+                            <span>/ ${formatCurrency(saving.targetAmount)}</span>
+                        </div>
+                    </div>
+                </div>
+            `;
+    }).join('');
 }
 
-function showAddGoalForm() {
-    document.getElementById('add-goal-form').style.display = 'block';
-}
+// ========== MODAL HELPERS ==========
+// (Modal helpers are defined above in ACTION BUTTONS to avoid duplicate definitions)
 
-function hideAddGoalForm() {
-    document.getElementById('add-goal-form').style.display = 'none';
-    document.getElementById('goal-form').reset();
-}
+// ========== INITIALIZE ==========
+document.addEventListener('DOMContentLoaded', () => {
+    loadUserInfo();
+    loadTransactions();
+    loadSavings();
 
-function handleGoalSubmit(event) {
-    event.preventDefault();
-
-    const goalName = document.getElementById('goal-name').value;
-    const goalDescription = document.getElementById('goal-description').value;
-    const targetAmount = parseFloat(document.getElementById('target-amount').value);
-
-    const goal = {
-        goalName,
-        goalDescription,
-        targetAmount
-    };
-
-    const token = getToken();
-    fetch('/api/savings', {
-        method: 'POST',
-        headers: {
-            'Content-Type': 'application/json',
-            'Authorization': `Bearer ${token}`
-        },
-        body: JSON.stringify(goal)
-    })
-    .then(response => response.json())
-    .then(() => {
-        hideAddGoalForm();
-        loadSavingsGoals();
-    })
-    .catch(error => {
-        console.error('Error creating goal:', error);
-    });
-}
-
-function addToGoal(id) {
-    const amount = prompt('Enter amount to add:');
-    if (amount) {
-        const token = getToken();
-        fetch(`/api/savings/${id}/add`, {
-            method: 'PUT',
-            headers: {
-                'Content-Type': 'application/json',
-                'Authorization': `Bearer ${token}`
-            },
-            body: JSON.stringify({ amount: parseFloat(amount) })
-        })
-        .then(() => loadSavingsGoals())
-        .catch(error => console.error('Error adding to goal:', error));
+    // Wire up transaction modal close on overlay click and form submit
+    const modal = document.getElementById('addTransactionModal');
+    if (modal) {
+        modal.addEventListener('click', (e) => {
+            if (e.target === modal) closeTransactionForm();
+        });
     }
-}
+    const form = document.getElementById('transactionForm');
+    if (form) {
+        form.addEventListener('submit', async (e) => {
+            e.preventDefault();
+            const fd = new FormData(form);
+            const data = Object.fromEntries(fd.entries());
 
-function withdrawFromGoal(id) {
-    const amount = prompt('Enter amount to withdraw:');
-    if (amount) {
-        const token = getToken();
-        fetch(`/api/savings/${id}/withdraw`, {
-            method: 'PUT',
-            headers: {
-                'Content-Type': 'application/json',
-                'Authorization': `Bearer ${token}`
-            },
-            body: JSON.stringify({ amount: parseFloat(amount) })
-        })
-        .then(() => loadSavingsGoals())
-        .catch(error => console.error('Error withdrawing from goal:', error));
-    }
-}
+            // Normalize types and shape expected by backend
+            const amount = parseFloat(data.amount);
+            const dateInput = data.date;
+            const localDateTime = dateInput ? `${dateInput}T00:00:00` : null; // Spring LocalDateTime format
 
-function deleteGoal(id) {
-    if (confirm('Are you sure you want to delete this goal?')) {
-        const token = getToken();
-        fetch(`/api/savings/${id}`, {
-            method: 'DELETE',
-            headers: {
-                'Authorization': `Bearer ${token}`
+            if (!Number.isFinite(amount)) {
+                alert('Please enter a valid amount.');
+                return;
             }
-        })
-        .then(() => loadSavingsGoals())
-        .catch(error => console.error('Error deleting goal:', error));
+
+            const payload = {
+                description: data.description?.trim(),
+                amount: amount,
+                transactionType: data.transactionType,
+                category: data.category?.trim(),
+                date: localDateTime,
+            };
+
+            const token = getToken();
+            if (!token) {
+                window.location.href = '/login';
+                return;
+            }
+
+            try {
+                const res = await fetch('/api/transaction/create', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                        'Authorization': `Bearer ${token}`,
+                    },
+                    body: JSON.stringify(payload),
+                });
+
+                if (!res.ok) {
+                    const msg = await res.text().catch(() => 'Failed to create transaction');
+                    throw new Error(msg || `HTTP ${res.status}`);
+                }
+
+                // Success: reset form, close modal, refresh
+                form.reset();
+                closeTransactionForm();
+                loadTransactions();
+                alert('Transaction created successfully!');
+            } catch (err) {
+                console.error('Create transaction failed:', err);
+                alert(typeof err?.message === 'string' ? err.message : 'Failed to create transaction');
+            }
+        });
     }
-}
+
+    // Wire up savings modal close on overlay click and form submit
+    const savingsModal = document.getElementById('addSavingsModal');
+    if (savingsModal) {
+        savingsModal.addEventListener('click', (e) => {
+            if (e.target === savingsModal) closeSavingsForm();
+        });
+    }
+    const savingsForm = document.getElementById('savingsForm');
+    if (savingsForm) {
+        savingsForm.addEventListener('submit', async (e) => {
+            e.preventDefault();
+            const fd = new FormData(savingsForm);
+            const data = Object.fromEntries(fd.entries());
+
+            // Normalize types and shape expected by backend
+            const currentAmount = parseFloat(data.currentAmount) || 0;
+            const targetAmount = parseFloat(data.targetAmount);
+
+            if (!Number.isFinite(targetAmount) || targetAmount <= 0) {
+                alert('Please enter a valid target amount greater than 0.');
+                return;
+            }
+
+            if (currentAmount < 0) {
+                alert('Current amount cannot be negative.');
+                return;
+            }
+
+            const payload = {
+                savingsName: data.savingsName?.trim(),
+                savingsDescription: data.savingsDescription?.trim(),
+                currentAmount: currentAmount,
+                targetAmount: targetAmount,
+            };
+
+            const token = getToken();
+            if (!token) {
+                window.location.href = '/login';
+                return;
+            }
+
+            try {
+                const res = await fetch('/api/savings/create', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                        'Authorization': `Bearer ${token}`,
+                    },
+                    body: JSON.stringify(payload),
+                });
+
+                if (!res.ok) {
+                    const msg = await res.text().catch(() => 'Failed to create savings');
+                    throw new Error(msg || `HTTP ${res.status}`);
+                }
+
+                // Success: reset form, close modal, refresh
+                savingsForm.reset();
+                closeSavingsForm();
+                loadSavings();
+                alert('Savings created successfully!');
+            } catch (err) {
+                console.error('Create savings failed:', err);
+                alert(typeof err?.message === 'string' ? err.message : 'Failed to create savings');
+            }
+        });
+    }
+
+    // Refresh data every 30 seconds
+    setInterval(() => {
+        loadTransactions();
+        loadSavings();
+    }, 30000);
+});
